@@ -871,3 +871,4 @@ export const indianCalendarEvents = [
   { date: "2026-12-25", name: "Christmas Day", type: "Holiday", impact: "+50% Surge", active: true },
   { date: "2026-12-31", name: "New Year's Eve", type: "Holiday", impact: "+70% Peak", active: true },
 ]
+

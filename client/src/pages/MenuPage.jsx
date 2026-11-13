@@ -418,3 +418,4 @@ export const MenuPage = () => {
     </div>
   )
 }
+

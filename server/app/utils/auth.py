@@ -3,7 +3,8 @@ import functools
 import jwt
 from flask import request, jsonify, g
 from app.config import Config
-from app.utils.db import query_one
+from app.extensions import db
+from app.models import User
 
 def generate_token(user_id, username, role):
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -39,8 +40,8 @@ def jwt_required(f):
         if not payload:
             return jsonify({"success": False, "message": "Invalid or expired authorization token"}), 401
 
-        user = query_one("SELECT id, username, email, role, is_active FROM users WHERE id = ?;", (int(payload["sub"]),))
-        if not user or not user["is_active"]:
+        user = db.session.get(User, int(payload["sub"]))
+        if not user or not user.is_active:
             return jsonify({"success": False, "message": "User not found or account deactivated"}), 401
 
         g.current_user = user
@@ -53,7 +54,7 @@ def roles_required(*allowed_roles):
         def decorated(*args, **kwargs):
             if not hasattr(g, "current_user") or not g.current_user:
                 return jsonify({"success": False, "message": "Authentication required"}), 401
-            if g.current_user["role"] not in allowed_roles:
+            if g.current_user.role not in allowed_roles:
                 return jsonify({
                     "success": False, 
                     "message": f"Forbidden: Action requires one of roles: {', '.join(allowed_roles)}"

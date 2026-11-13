@@ -1,37 +1,38 @@
-import datetime
 from flask import Blueprint, jsonify
-from app.utils.db import query_all, query_one
+from app.extensions import db
+from app.models import (
+    User, Kitchen, MenuItem, Ingredient, Recipe,
+    Sale, InventoryBatch, StockMovement, Purchase, WasteRecord, Forecast
+)
 
-health_bp = Blueprint("health", __name__)
+health_bp = Blueprint("health_bp", __name__)
 
 @health_bp.route("/health", methods=["GET"])
 def health_check():
     try:
-        tables = [
-            "users", "categories", "suppliers", "ingredients", 
-            "inventory_batches", "menu_items", "recipes", 
-            "sales_orders", "sales_order_items", "waste_logs", 
-            "calendar_events", "purchase_orders"
-        ]
-        counts = {}
-        for t in tables:
-            row = query_one(f"SELECT COUNT(*) as c FROM {t};")
-            counts[t] = row["c"] if row else 0
-
+        counts = {
+            "users": User.query.count(),
+            "kitchens": Kitchen.query.count(),
+            "menu_items": MenuItem.query.count(),
+            "ingredients": Ingredient.query.count(),
+            "recipes": Recipe.query.count(),
+            "sales": Sale.query.count(),
+            "inventory_batches": InventoryBatch.query.count(),
+            "stock_movements": StockMovement.query.count(),
+            "purchases": Purchase.query.count(),
+            "waste_records": WasteRecord.query.count(),
+            "forecasts": Forecast.query.count()
+        }
         return jsonify({
-            "success": True,
             "status": "healthy",
-            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
-            "version": "1.0.0",
             "database": {
-                "engine": "SQLite WAL",
+                "engine": "SQLite (WAL Mode)",
+                "orm": "SQLAlchemy 2.x",
                 "counts": counts
             }
         }), 200
     except Exception as e:
         return jsonify({
-            "success": False,
-            "status": "unhealthy",
+            "status": "degraded",
             "error": str(e)
         }), 500
-
