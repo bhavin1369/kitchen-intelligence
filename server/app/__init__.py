@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+# Ensure venv site-packages is available as fallback for pure-python packages
+_venv_site = Path(__file__).resolve().parent.parent / "venv" / "Lib" / "site-packages"
+if _venv_site.exists() and str(_venv_site) not in sys.path:
+    sys.path.append(str(_venv_site))
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from app.config import Config

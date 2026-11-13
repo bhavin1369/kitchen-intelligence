@@ -71,4 +71,12 @@ export const inventoryService = {
   getBatches: (params) => api.get("/inventory/batches", { params }),
 }
 
+export const forecastService = {
+  getForecasts: (params) => api.get("/forecasts", { params }),
+  retrainModel: () => api.post("/forecasts/train"),
+  getEvaluation: () => api.get("/forecasts/evaluation"),
+  getCalendar: (params) => api.get("/forecasts/calendar", { params }),
+  getHistory: (params) => api.get("/forecasts/history", { params }),
+}
+
 export default api

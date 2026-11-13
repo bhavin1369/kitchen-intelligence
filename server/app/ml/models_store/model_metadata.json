@@ -1,0 +1,253 @@
+{
+  "version": "v1.81390",
+  "algorithm": "Random Forest Regressor (with Indian Calendar & Lag Dynamics)",
+  "comparisonAlgorithm": "Gradient Boosting Regressor",
+  "baselineAlgorithm": "Historical Day-of-Week Moving Average",
+  "trainedAt": "2026-11-13T14:49:50.172274+00:00",
+  "trainingDurationSeconds": 0.43,
+  "dataset": {
+    "totalSamples": 279,
+    "trainSamples": 216,
+    "testSamples": 63,
+    "minDate": "2026-10-14",
+    "maxDate": "2026-11-13",
+    "distinctDatesCount": 31,
+    "dishesCount": 9,
+    "splitCutoff": "2026-11-07"
+  },
+  "evaluation": {
+    "primaryModel": "Random Forest",
+    "randomForest": {
+      "mae": 1.941,
+      "rmse": 2.66,
+      "r2": 0.2754,
+      "mape": 91.73
+    },
+    "gradientBoosting": {
+      "mae": 2.295,
+      "rmse": 3.099,
+      "r2": 0.0166,
+      "mape": 110.74
+    },
+    "baseline": {
+      "mae": 2.093,
+      "rmse": 2.64,
+      "r2": 0.2863,
+      "mape": 90.49
+    },
+    "pctImprovementOverBaseline": 7.3,
+    "status": "superior"
+  },
+  "featureImportances": [
+    {
+      "feature": "rolling_mean_14",
+      "importance": 0.1164
+    },
+    {
+      "feature": "rolling_mean_7",
+      "importance": 0.1159
+    },
+    {
+      "feature": "day_of_week",
+      "importance": 0.0944
+    },
+    {
+      "feature": "lag_7",
+      "importance": 0.0849
+    },
+    {
+      "feature": "price",
+      "importance": 0.0846
+    },
+    {
+      "feature": "lag_1",
+      "importance": 0.0786
+    },
+    {
+      "feature": "menu_item_id",
+      "importance": 0.076
+    },
+    {
+      "feature": "rolling_std_7",
+      "importance": 0.0663
+    },
+    {
+      "feature": "days_to_nearest_festival",
+      "importance": 0.0635
+    },
+    {
+      "feature": "is_weekend",
+      "importance": 0.0609
+    },
+    {
+      "feature": "prep_time_minutes",
+      "importance": 0.0489
+    },
+    {
+      "feature": "lag_2",
+      "importance": 0.0386
+    },
+    {
+      "feature": "day_of_month",
+      "importance": 0.0321
+    },
+    {
+      "feature": "day_of_year",
+      "importance": 0.0287
+    },
+    {
+      "feature": "is_indian_festival",
+      "importance": 0.0089
+    },
+    {
+      "feature": "month",
+      "importance": 0.0014
+    },
+    {
+      "feature": "is_public_holiday",
+      "importance": 0.0
+    },
+    {
+      "feature": "quarter",
+      "importance": 0.0
+    },
+    {
+      "feature": "is_veg",
+      "importance": 0.0
+    }
+  ],
+  "dishBreakdown": [
+    {
+      "menuItemId": 1,
+      "dishName": "Gujarati Thali",
+      "testSamples": 7,
+      "mae": 3.16,
+      "rmse": 4.02,
+      "avgActual": 4.3,
+      "avgPredicted": 5.1
+    },
+    {
+      "menuItemId": 2,
+      "dishName": "Paneer Butter Masala",
+      "testSamples": 7,
+      "mae": 2.56,
+      "rmse": 3.01,
+      "avgActual": 2.4,
+      "avgPredicted": 5.0
+    },
+    {
+      "menuItemId": 3,
+      "dishName": "Vegetable Pulao",
+      "testSamples": 7,
+      "mae": 1.2,
+      "rmse": 1.69,
+      "avgActual": 3.9,
+      "avgPredicted": 4.6
+    },
+    {
+      "menuItemId": 4,
+      "dishName": "Sandwich",
+      "testSamples": 7,
+      "mae": 1.63,
+      "rmse": 2.05,
+      "avgActual": 5.0,
+      "avgPredicted": 4.5
+    },
+    {
+      "menuItemId": 5,
+      "dishName": "Dosa",
+      "testSamples": 7,
+      "mae": 2.29,
+      "rmse": 2.94,
+      "avgActual": 4.4,
+      "avgPredicted": 5.1
+    },
+    {
+      "menuItemId": 6,
+      "dishName": "Idli",
+      "testSamples": 7,
+      "mae": 1.75,
+      "rmse": 1.97,
+      "avgActual": 3.0,
+      "avgPredicted": 4.4
+    },
+    {
+      "menuItemId": 7,
+      "dishName": "Tea",
+      "testSamples": 7,
+      "mae": 2.93,
+      "rmse": 3.67,
+      "avgActual": 5.3,
+      "avgPredicted": 5.0
+    },
+    {
+      "menuItemId": 8,
+      "dishName": "Coffee",
+      "testSamples": 7,
+      "mae": 1.94,
+      "rmse": 2.33,
+      "avgActual": 4.1,
+      "avgPredicted": 4.7
+    },
+    {
+      "menuItemId": 9,
+      "dishName": "Paneer Lababdar",
+      "testSamples": 7,
+      "mae": 0.0,
+      "rmse": 0.0,
+      "avgActual": 0.0,
+      "avgPredicted": 0.0
+    }
+  ],
+  "comparisonPoints": [
+    {
+      "date": "2026-11-07",
+      "actual": 13.0,
+      "predicted": 18.9,
+      "baseline": 16.4,
+      "error": 5.9
+    },
+    {
+      "date": "2026-11-08",
+      "actual": 12.0,
+      "predicted": 24.2,
+      "baseline": 25.7,
+      "error": 12.2
+    },
+    {
+      "date": "2026-11-09",
+      "actual": 37.0,
+      "predicted": 53.3,
+      "baseline": 49.7,
+      "error": 16.3
+    },
+    {
+      "date": "2026-11-10",
+      "actual": 49.0,
+      "predicted": 46.1,
+      "baseline": 40.3,
+      "error": 2.9
+    },
+    {
+      "date": "2026-11-11",
+      "actual": 42.0,
+      "predicted": 44.6,
+      "baseline": 37.2,
+      "error": 2.6
+    },
+    {
+      "date": "2026-11-12",
+      "actual": 37.0,
+      "predicted": 42.4,
+      "baseline": 35.4,
+      "error": 5.4
+    },
+    {
+      "date": "2026-11-13",
+      "actual": 37.0,
+      "predicted": 38.6,
+      "baseline": 41.8,
+      "error": 1.6
+    }
+  ]
+}
