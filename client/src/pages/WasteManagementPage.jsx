@@ -338,36 +338,45 @@ export const WasteManagementPage = () => {
     }
   }
 
-  // Filter logs
-  const filteredLogs = wasteLogs.filter((log) => {
-    const itemName = log.itemName || log.ingredientName || ""
+  // Filter logs safely
+  const filteredLogs = (wasteLogs || []).filter((log) => {
+    if (!log) return false
+    const itemName = String(log.itemName || log.ingredientName || log.item || "")
+    const loggedBy = String(log.loggedBy || "")
+    const logNumber = String(log.logNumber || log.id || "")
+    const query = (searchQuery || "").toLowerCase()
     const matchesSearch =
-      itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.loggedBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.logNumber.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesReason = reasonFilter === "all" || log.reason?.toLowerCase() === reasonFilter.toLowerCase()
+      itemName.toLowerCase().includes(query) ||
+      loggedBy.toLowerCase().includes(query) ||
+      logNumber.toLowerCase().includes(query)
+    const matchesReason =
+      reasonFilter === "all" ||
+      (log.reason && log.reason.toLowerCase() === reasonFilter.toLowerCase())
     const matchesType = itemTypeFilter === "all" || log.itemType === itemTypeFilter
     return matchesSearch && matchesReason && matchesType
   })
 
-  // Format Recharts data
+  // Format Recharts data safely
   const reasonChartData = (analyticsData?.reasonBreakdown || []).map((r) => ({
-    name: r.reason,
-    value: r.financialLoss,
-    percentage: r.percentage
+    name: r?.reason || "Other",
+    value: r?.financialLoss || 0,
+    percentage: r?.percentage || 0
   }))
 
   const dailyTrendData = (analyticsData?.dailyTrends || []).slice(-14).map((d) => ({
-    date: d.date.slice(5),
-    loss: d.financialLoss,
-    quantity: d.quantity
+    date: d?.date ? String(d.date).slice(5) : "",
+    loss: d?.financialLoss || 0,
+    quantity: d?.quantity || 0
   }))
 
-  const topItemsData = (analyticsData?.topWastedItems || []).map((it) => ({
-    name: it.name.length > 14 ? it.name.slice(0, 14) + "..." : it.name,
-    loss: it.financialLoss,
-    qty: it.totalQuantity
-  }))
+  const topItemsData = (analyticsData?.topWastedItems || []).map((it) => {
+    const rawName = String(it?.name || "Unknown Item")
+    return {
+      name: rawName.length > 14 ? rawName.slice(0, 14) + "..." : rawName,
+      loss: it?.financialLoss || 0,
+      qty: it?.totalQuantity || 0
+    }
+  })
 
   return (
     <div className="space-y-6">
@@ -456,7 +465,7 @@ export const WasteManagementPage = () => {
             ₹{(analyticsData?.totalFinancialLoss || 0).toLocaleString("en-IN")}
           </div>
           <p className="text-[11px] text-stone-500 mt-1">
-            Across {analyticsData?.totalRecordsCount || wasteLogs.length} logged incidents (last 30d)
+            Across {analyticsData?.totalRecordsCount || (wasteLogs ? wasteLogs.length : 0)} logged incidents (last 30d)
           </p>
         </div>
 
@@ -511,7 +520,7 @@ export const WasteManagementPage = () => {
                 : "text-stone-600 hover:text-stone-900"
             }`}
           >
-            Waste Logs ({wasteLogs.length})
+            Waste Logs ({(wasteLogs || []).length})
           </button>
           <button
             onClick={() => setActiveTab("analytics")}
@@ -612,7 +621,7 @@ export const WasteManagementPage = () => {
             </div>
 
             <div className="text-right text-stone-500 font-medium text-[11px]">
-              Showing {filteredLogs.length} of {wasteLogs.length} Records
+              Showing {(filteredLogs || []).length} of {(wasteLogs || []).length} Records
             </div>
           </div>
 
@@ -636,7 +645,7 @@ export const WasteManagementPage = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100 text-stone-800">
-                  {filteredLogs.length === 0 ? (
+                  {(!filteredLogs || filteredLogs.length === 0) ? (
                     <tr>
                       <td colSpan={11} className="py-8 text-center text-stone-400">
                         No food waste records found matching the filters.

@@ -237,12 +237,18 @@ def get_waste_analytics(days: int = 30) -> Dict[str, Any]:
     # 4. Top Wasted Items
     items_map: Dict[str, Dict[str, Any]] = {}
     for r in records:
-        item_key = f"{r.item_type}:{r.item_name}"
+        resolved_name = (
+            r.item_name or
+            (r.ingredient.name if r.ingredient else None) or
+            (r.menu_item.name if r.menu_item else None) or
+            "Unknown Item"
+        )
+        item_key = f"{r.item_type}:{resolved_name}"
         if item_key not in items_map:
             items_map[item_key] = {
-                "name": r.item_name,
+                "name": resolved_name,
                 "itemType": r.item_type,
-                "unit": r.unit,
+                "unit": r.unit or "kg",
                 "totalQuantity": 0.0,
                 "financialLoss": 0.0,
                 "count": 0

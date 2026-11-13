@@ -1,5 +1,5 @@
 import React from "react"
-import { NavLink } from "react-router-dom"
+import { NavLink, useLocation } from "react-router-dom"
 import {
   LayoutDashboard,
   Receipt,
@@ -34,6 +34,32 @@ export const NAV_ITEMS = [
 
 export const Sidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth()
+  const location = useLocation()
+
+  // Exact route and query param aware active indicator
+  const isItemActive = (item) => {
+    const currentPath = location.pathname
+    const currentSearch = location.search
+
+    if (item.to === "/") {
+      return currentPath === "/"
+    }
+
+    if (item.to.includes("?")) {
+      const [path, query] = item.to.split("?")
+      return currentPath === path && currentSearch.includes(query)
+    }
+
+    if (item.to === "/inventory") {
+      return currentPath === "/inventory" && !currentSearch.includes("tab=ingredients")
+    }
+
+    if (item.to === "/waste") {
+      return currentPath === "/waste" && !currentSearch.includes("tab=expiry")
+    }
+
+    return currentPath === item.to || currentPath.startsWith(item.to + "/")
+  }
 
   return (
     <>
@@ -82,41 +108,34 @@ export const Sidebar = ({ isOpen, onClose }) => {
         <nav className="flex-1 overflow-y-auto px-2.5 py-1 space-y-0.5 custom-scrollbar">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon
-            const isExact = item.to === "/"
+            const active = isItemActive(item)
             return (
               <NavLink
                 key={item.label}
                 to={item.to}
-                end={isExact}
                 onClick={() => {
                   if (onClose) onClose()
                 }}
-                className={({ isActive }) =>
-                  `flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-colors ${
-                    isActive
-                      ? "bg-forest-900 dark:bg-emerald-700 text-white font-semibold shadow-xs"
-                      : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800"
-                  }`
-                }
+                className={`flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                  active
+                    ? "bg-forest-900 dark:bg-emerald-700 text-white font-semibold shadow-xs"
+                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800"
+                }`}
               >
-                {({ isActive }) => (
-                  <>
-                    <div className="flex items-center space-x-2.5">
-                      <Icon
-                        className={`w-4 h-4 shrink-0 ${
-                          isActive
-                            ? "text-white"
-                            : "text-stone-400 dark:text-stone-400"
-                        }`}
-                      />
-                      <span>{item.label}</span>
-                    </div>
-                    {item.badge && (
-                      <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                        {item.badge}
-                      </span>
-                    )}
-                  </>
+                <div className="flex items-center space-x-2.5">
+                  <Icon
+                    className={`w-4 h-4 shrink-0 ${
+                      active
+                        ? "text-white"
+                        : "text-stone-400 dark:text-stone-400"
+                    }`}
+                  />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                    {item.badge}
+                  </span>
                 )}
               </NavLink>
             )
