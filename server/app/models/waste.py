@@ -7,29 +7,45 @@ class WasteRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     kitchen_id = db.Column(db.Integer, db.ForeignKey("kitchens.id", ondelete="SET NULL"), nullable=True)
     log_number = db.Column(db.String(64), unique=True, nullable=False, index=True)
-    ingredient_id = db.Column(db.Integer, db.ForeignKey("ingredients.id", ondelete="RESTRICT"), nullable=False, index=True)
+    item_type = db.Column(db.String(32), default="ingredient", nullable=False) # 'ingredient' or 'prepared_item'
+    ingredient_id = db.Column(db.Integer, db.ForeignKey("ingredients.id", ondelete="RESTRICT"), nullable=True, index=True)
+    menu_item_id = db.Column(db.Integer, db.ForeignKey("menu_items.id", ondelete="SET NULL"), nullable=True, index=True)
+    item_name = db.Column(db.String(120), nullable=True)
     batch_id = db.Column(db.Integer, db.ForeignKey("inventory_batches.id", ondelete="SET NULL"), nullable=True)
     quantity = db.Column(db.Float, nullable=False)
     unit = db.Column(db.String(16), nullable=False)
     financial_loss = db.Column(db.Float, nullable=False)
-    reason = db.Column(db.String(64), nullable=False) # Spoilage, Prep Trimming Loss, Overproduction, Storage Glitch, Quality Rejection
+    reason = db.Column(db.String(64), nullable=False) # Spoilage, Expiry, Overproduction, Preparation Waste, Quality Rejection
     logged_by = db.Column(db.String(64), default="Head Chef", nullable=False)
     notes = db.Column(db.Text, nullable=True)
     logged_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
     ingredient = db.relationship("Ingredient", lazy="joined")
+    menu_item = db.relationship("MenuItem", lazy="joined")
     batch = db.relationship("InventoryBatch", lazy="joined")
 
     def to_dict(self):
+        resolved_name = self.item_name
+        if not resolved_name:
+            if self.item_type == "prepared_item" and self.menu_item:
+                resolved_name = self.menu_item.name
+            elif self.ingredient:
+                resolved_name = self.ingredient.name
+            else:
+                resolved_name = "Unknown Item"
+
         return {
             "id": self.id,
             "logNumber": self.log_number,
+            "itemType": self.item_type,
             "ingredientId": self.ingredient_id,
-            "ingredientName": self.ingredient.name if self.ingredient else "Unknown",
+            "menuItemId": self.menu_item_id,
+            "itemName": resolved_name,
+            "ingredientName": resolved_name, # backwards compatibility
             "batchRef": self.batch.batch_number if self.batch else "Direct Stock",
             "quantityLost": self.quantity,
             "unit": self.unit,
-            "financialLoss": self.financial_loss,
+            "financialLoss": round(self.financial_loss, 2),
             "reason": self.reason,
             "loggedBy": self.logged_by,
             "notes": self.notes or "",

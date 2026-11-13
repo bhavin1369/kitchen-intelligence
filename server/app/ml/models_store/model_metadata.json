@@ -1,10 +1,10 @@
 {
-  "version": "v1.82238",
+  "version": "v1.85125",
   "algorithm": "Random Forest Regressor (with Indian Calendar & Lag Dynamics)",
   "comparisonAlgorithm": "Gradient Boosting Regressor",
   "baselineAlgorithm": "Historical Day-of-Week Moving Average",
-  "trainedAt": "2026-11-13T15:03:58.644425+00:00",
-  "trainingDurationSeconds": 0.47,
+  "trainedAt": "2026-11-13T15:52:05.890814+00:00",
+  "trainingDurationSeconds": 0.43,
   "dataset": {
     "totalSamples": 279,
     "trainSamples": 216,
@@ -18,24 +18,24 @@
   "evaluation": {
     "primaryModel": "Random Forest",
     "randomForest": {
-      "mae": 2.074,
-      "rmse": 2.81,
-      "r2": 0.2774,
-      "mape": 93.5
+      "mae": 2.217,
+      "rmse": 3.065,
+      "r2": 0.2523,
+      "mape": 96.96
     },
     "gradientBoosting": {
-      "mae": 2.403,
-      "rmse": 3.211,
-      "r2": 0.0567,
-      "mape": 111.6
+      "mae": 2.532,
+      "rmse": 3.436,
+      "r2": 0.0606,
+      "mape": 116.51
     },
     "baseline": {
-      "mae": 2.124,
-      "rmse": 2.749,
-      "r2": 0.3086,
-      "mape": 89.96
+      "mae": 2.251,
+      "rmse": 2.941,
+      "r2": 0.3117,
+      "mape": 91.06
     },
-    "pctImprovementOverBaseline": 2.4,
+    "pctImprovementOverBaseline": 1.5,
     "status": "superior"
   },
   "featureImportances": [
@@ -148,19 +148,19 @@
       "menuItemId": 4,
       "dishName": "Sandwich",
       "testSamples": 7,
-      "mae": 1.92,
-      "rmse": 2.19,
-      "avgActual": 5.3,
+      "mae": 2.2,
+      "rmse": 2.56,
+      "avgActual": 5.6,
       "avgPredicted": 4.5
     },
     {
       "menuItemId": 5,
       "dishName": "Dosa",
       "testSamples": 7,
-      "mae": 2.58,
-      "rmse": 3.1,
-      "avgActual": 4.7,
-      "avgPredicted": 5.1
+      "mae": 3.07,
+      "rmse": 3.72,
+      "avgActual": 5.0,
+      "avgPredicted": 5.3
     },
     {
       "menuItemId": 6,
@@ -175,10 +175,10 @@
       "menuItemId": 7,
       "dishName": "Tea",
       "testSamples": 7,
-      "mae": 3.56,
-      "rmse": 4.39,
-      "avgActual": 5.9,
-      "avgPredicted": 4.9
+      "mae": 4.07,
+      "rmse": 5.18,
+      "avgActual": 6.4,
+      "avgPredicted": 5.0
     },
     {
       "menuItemId": 8,
@@ -237,17 +237,17 @@
     },
     {
       "date": "2026-11-12",
-      "actual": 41.0,
+      "actual": 45.0,
       "predicted": 42.4,
       "baseline": 35.4,
-      "error": 1.4
+      "error": 2.6
     },
     {
       "date": "2026-11-13",
-      "actual": 41.0,
-      "predicted": 38.3,
+      "actual": 45.0,
+      "predicted": 40.1,
       "baseline": 41.8,
-      "error": 2.7
+      "error": 4.9
     }
   ]
 }

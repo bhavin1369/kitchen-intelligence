@@ -286,3 +286,4 @@ def record_stock_consumption(
         "newCurrentStock": ingredient.current_stock,
         "movementsCreated": len(movements)
     }
+

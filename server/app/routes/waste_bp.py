@@ -1,73 +1,61 @@
 from datetime import datetime, date
-from flask import Blueprint, request, jsonify
-from sqlalchemy import func
+from flask import Blueprint, request, jsonify, Response
 from app.extensions import db
-from app.models import WasteRecord, Ingredient, InventoryBatch
-from app.services.inventory_service import record_waste_deduction
+from app.models import WasteRecord, Ingredient, MenuItem, InventoryBatch
+from app.services.waste_service import (
+    record_waste_entry,
+    get_waste_analytics,
+    get_expiry_alerts,
+    get_waste_risk_analysis,
+    get_leftover_recipe_suggestions,
+    export_waste_records_csv
+)
 
 waste_bp = Blueprint("waste_bp", __name__)
 
+
 @waste_bp.route("", methods=["POST"])
 def record_waste():
+    """
+    Records a food waste event for either raw ingredients or prepared dishes.
+    Deducts stock via FEFO for raw ingredients and calculates financial loss.
+    """
     data = request.get_json() or {}
-    ing_ident = data.get("ingredientId") or data.get("ingredient_id") or data.get("ingredientName")
+    item_type = data.get("itemType") or data.get("item_type", "ingredient")
+    ing_id = data.get("ingredientId") or data.get("ingredient_id")
+    menu_id = data.get("menuItemId") or data.get("menu_item_id")
+    item_name = data.get("itemName") or data.get("item_name")
     qty = float(data.get("quantity") or data.get("quantityLost") or 0.0)
     unit = data.get("unit", "kg")
     reason = data.get("reason", "Spoilage")
     batch_id = data.get("batchId") or data.get("batch_id")
-    logged_by = data.get("loggedBy") or data.get("logged_by") or "Head Chef"
+    logged_by = data.get("loggedBy") or data.get("logged_by", "Head Chef")
     notes = data.get("notes", "")
 
-    if not ing_ident:
-        return jsonify({"success": False, "message": "Ingredient is required."}), 400
-    if qty <= 0:
-        return jsonify({"success": False, "message": "Wasted quantity must be strictly positive."}), 400
-
-    # Resolve ingredient
-    if isinstance(ing_ident, int) or (isinstance(ing_ident, str) and ing_ident.isdigit()):
-        ingredient = db.session.get(Ingredient, int(ing_ident))
-    else:
-        ingredient = Ingredient.query.filter(Ingredient.name.ilike(str(ing_ident).strip())).first()
-
-    if not ingredient:
-        return jsonify({"success": False, "message": f"Ingredient '{ing_ident}' not found."}), 404
+    date_str = data.get("date") or data.get("loggedAt") or data.get("logged_at")
+    log_d = None
+    if date_str:
+        try:
+            log_d = datetime.strptime(date_str[:10], "%Y-%m-%d").date()
+        except ValueError:
+            pass
 
     try:
-        base_qty, loss = record_waste_deduction(
-            ingredient=ingredient,
+        res = record_waste_entry(
+            item_type=item_type,
+            ingredient_id=int(ing_id) if ing_id else None,
+            menu_item_id=int(menu_id) if menu_id else None,
+            item_name=item_name,
             quantity=qty,
             unit=unit,
             reason=reason,
-            batch_id=batch_id,
+            batch_id=int(batch_id) if batch_id else None,
+            log_date=log_d,
             logged_by=logged_by,
             notes=notes
         )
-
-        log_count = WasteRecord.query.count()
-        log_num = f"WST-{log_count+1:02d}"
-
-        waste_record = WasteRecord(
-            log_number=log_num,
-            ingredient_id=ingredient.id,
-            batch_id=batch_id,
-            quantity=qty,
-            unit=unit,
-            financial_loss=loss,
-            reason=reason,
-            logged_by=logged_by,
-            notes=notes,
-            logged_at=datetime.utcnow()
-        )
-        db.session.add(waste_record)
-        db.session.commit()
-
-        return jsonify({
-            "success": True,
-            "message": f"Waste recorded ({log_num}): {qty} {unit} of {ingredient.name} discarded. Financial loss: ₹{loss}.",
-            "data": waste_record.to_dict()
-        }), 201
+        return jsonify(res), 201
     except ValueError as ve:
-        db.session.rollback()
         return jsonify({"success": False, "message": str(ve)}), 400
     except Exception as e:
         db.session.rollback()
@@ -76,18 +64,23 @@ def record_waste():
 
 @waste_bp.route("", methods=["GET"])
 def get_waste_records():
+    """Retrieves waste records with filters"""
     reason = request.args.get("reason")
+    item_type = request.args.get("itemType") or request.args.get("item_type")
     search = request.args.get("search", "").strip()
-    limit = int(request.args.get("limit", 50))
+    limit = int(request.args.get("limit", 100))
 
     query = WasteRecord.query
     if reason and reason.lower() != "all":
         query = query.filter(WasteRecord.reason.ilike(reason))
+    if item_type and item_type.lower() != "all":
+        query = query.filter(WasteRecord.item_type.ilike(item_type))
     if search:
-        query = query.join(Ingredient).filter(
-            (Ingredient.name.ilike(f"%{search}%")) |
+        query = query.filter(
+            (WasteRecord.item_name.ilike(f"%{search}%")) |
             (WasteRecord.log_number.ilike(f"%{search}%")) |
-            (WasteRecord.logged_by.ilike(f"%{search}%"))
+            (WasteRecord.logged_by.ilike(f"%{search}%")) |
+            (WasteRecord.notes.ilike(f"%{search}%"))
         )
 
     records = query.order_by(WasteRecord.logged_at.desc()).limit(limit).all()
@@ -140,33 +133,70 @@ def delete_waste_record(waste_id):
 
 
 @waste_bp.route("/summary", methods=["GET"])
-def get_waste_summary():
-    """Returns aggregated loss by reason category and total physical weight"""
-    breakdown = db.session.query(
-        WasteRecord.reason,
-        func.sum(WasteRecord.financial_loss),
-        func.sum(WasteRecord.quantity)
-    ).group_by(WasteRecord.reason).all()
-
-    total_loss = sum(loss or 0.0 for _, loss, _ in breakdown)
-    total_qty = sum(qty or 0.0 for _, _, qty in breakdown)
-
-    reason_list = [
-        {
-            "name": r_name,
-            "loss": round(r_loss or 0.0, 2),
-            "quantity": round(r_qty or 0.0, 2)
-        }
-        for r_name, r_loss, r_qty in breakdown
-    ]
-
+def get_waste_summary_endpoint():
+    """Returns aggregated loss by reason category and total physical volume"""
+    days = int(request.args.get("days", 30))
+    data = get_waste_analytics(days=days)
     return jsonify({
         "success": True,
         "data": {
-            "totalFinancialLoss": round(total_loss, 2),
-            "totalQuantityLost": round(total_qty, 2),
-            "wasteToSalesRatio": 1.8, # Healthy benchmark < 2.5%
-            "reasonBreakdown": reason_list
+            "totalFinancialLoss": data["totalFinancialLoss"],
+            "totalQuantityLost": data["totalQuantityLost"],
+            "wasteToSalesRatio": data["wasteToSalesRatio"],
+            "reasonBreakdown": data["reasonBreakdown"]
         }
     }), 200
 
+
+@waste_bp.route("/analytics", methods=["GET"])
+def get_waste_analytics_endpoint():
+    """Returns in-depth waste analytics: daily trends, monthly history, top wasted SKUs"""
+    days = int(request.args.get("days", 30))
+    data = get_waste_analytics(days=days)
+    return jsonify(data), 200
+
+
+@waste_bp.route("/expiry-alerts", methods=["GET"])
+def get_expiry_alerts_endpoint():
+    """Returns ingredients & batches approaching expiry or already expired with FEFO actions"""
+    alerts = get_expiry_alerts()
+    return jsonify(alerts), 200
+
+
+@waste_bp.route("/risk-analysis", methods=["GET"])
+def get_waste_risk_analysis_endpoint():
+    """
+    Predictive Waste Risk Analysis:
+    Combines shelf life and ML sales forecasts to determine High, Medium, and Low risk surplus.
+    """
+    horizon = int(request.args.get("horizon", 5))
+    horizon = max(1, min(14, horizon))
+    risk_data = get_waste_risk_analysis(horizon_days=horizon)
+    return jsonify(risk_data), 200
+
+
+@waste_bp.route("/leftovers/suggestions", methods=["GET"])
+def get_leftover_suggestions_endpoint():
+    """
+    AI Leftover-to-Recipe Suggestions:
+    Upcycles near-expiry ingredients with strict food-safety validation.
+    """
+    suggestions = get_leftover_recipe_suggestions()
+    return jsonify(suggestions), 200
+
+
+@waste_bp.route("/export/csv", methods=["GET"])
+def export_waste_csv_endpoint():
+    """Exports waste log records as downloadable CSV file"""
+    reason = request.args.get("reason")
+    item_type = request.args.get("itemType") or request.args.get("item_type")
+    search = request.args.get("search")
+
+    csv_data = export_waste_records_csv(reason=reason, item_type=item_type, search=search)
+    filename = f"food_waste_report_{date.today().strftime('%Y%m%d')}.csv"
+
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )

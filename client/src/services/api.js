@@ -66,6 +66,7 @@ export const salesService = {
 }
 
 export const inventoryService = {
+  getAll: (params) => api.get("/inventory/ingredients", { params }),
   getIngredients: (params) => api.get("/inventory/ingredients", { params }),
   getIngredient: (id) => api.get(`/inventory/ingredients/${id}`),
   createIngredient: (data) => api.post("/inventory/ingredients", data),
@@ -94,6 +95,23 @@ export const forecastService = {
   getEvaluation: () => api.get("/forecasts/evaluation"),
   getCalendar: (params) => api.get("/forecasts/calendar", { params }),
   getHistory: (params) => api.get("/forecasts/history", { params }),
+}
+
+export const wasteService = {
+  getAll: (params) => api.get("/waste", { params }),
+  getById: (id) => api.get(`/waste/${id}`),
+  recordWaste: (data) => api.post("/waste", data),
+  update: (id, data) => api.put(`/waste/${id}`, data),
+  delete: (id) => api.delete(`/waste/${id}`),
+  getSummary: (params) => api.get("/waste/summary", { params }),
+  getAnalytics: (params) => api.get("/waste/analytics", { params }),
+  getExpiryAlerts: () => api.get("/waste/expiry-alerts"),
+  getRiskAnalysis: (params) => api.get("/waste/risk-analysis", { params }),
+  getLeftoverSuggestions: () => api.get("/waste/leftovers/suggestions"),
+  getExportCsvUrl: (params) => {
+    const query = new URLSearchParams(params || {}).toString()
+    return `/api/v1/waste/export/csv${query ? `?${query}` : ""}`
+  },
 }
 
 export default api
