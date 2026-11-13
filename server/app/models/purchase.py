@@ -70,3 +70,4 @@ class PurchaseItem(db.Model):
             "unitCost": self.unit_cost,
             "subtotal": self.subtotal
         }
+

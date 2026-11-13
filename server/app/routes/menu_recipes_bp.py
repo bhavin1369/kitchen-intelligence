@@ -10,6 +10,7 @@ menu_recipes_bp = Blueprint("menu_recipes_bp", __name__)
 def get_menu_items():
     category = request.args.get("category")
     diet = request.args.get("diet") # veg, nonveg
+    status = request.args.get("status") # active, inactive
     search = request.args.get("search", "").strip()
 
     query = MenuItem.query
@@ -21,6 +22,11 @@ def get_menu_items():
             query = query.filter(MenuItem.is_veg == True)
         elif diet.lower() == "nonveg":
             query = query.filter(MenuItem.is_veg == False)
+    if status and status.lower() != "all":
+        if status.lower() == "active":
+            query = query.filter(MenuItem.is_available == True)
+        elif status.lower() == "inactive":
+            query = query.filter(MenuItem.is_available == False)
     if search:
         query = query.filter(
             (MenuItem.name.ilike(f"%{search}%")) |
@@ -28,6 +34,10 @@ def get_menu_items():
         )
 
     items = query.order_by(MenuItem.id.asc()).all()
+    # Recalculate margins for response accuracy
+    for it in items:
+        it.calculate_cost_and_margin()
+
     return jsonify({
         "success": True,
         "total": len(items),
@@ -54,6 +64,7 @@ def create_menu_item():
     is_veg = bool(data.get("isVeg") if "isVeg" in data else data.get("is_veg", True))
     prep_time = int(data.get("prepTimeMinutes") or data.get("prep_time_minutes") or 15)
     description = data.get("description", "")
+    is_available = bool(data.get("isAvailable") if "isAvailable" in data else True)
 
     if not name:
         return jsonify({"success": False, "message": "Dish name is required."}), 400
@@ -66,7 +77,7 @@ def create_menu_item():
         price=price,
         cost_price=cost_price,
         is_veg=is_veg,
-        is_available=True,
+        is_available=is_available,
         prep_time_minutes=prep_time,
         description=description
     )
@@ -100,6 +111,8 @@ def update_menu_item(item_id):
         item.is_available = bool(data.get("isAvailable") if "isAvailable" in data else data.get("is_available"))
     if "status" in data:
         item.is_available = (data["status"] == "active")
+    if "isVeg" in data or "is_veg" in data:
+        item.is_veg = bool(data.get("isVeg") if "isVeg" in data else data.get("is_veg"))
     if "prepTimeMinutes" in data or "prep_time_minutes" in data:
         item.prep_time_minutes = int(data.get("prepTimeMinutes") or data.get("prep_time_minutes"))
     if "description" in data:
@@ -121,9 +134,12 @@ def delete_menu_item(item_id):
     if not item:
         return jsonify({"success": False, "message": "Menu item not found."}), 404
 
+    # Remove BOM recipes cascade
+    Recipe.query.filter_by(menu_item_id=item.id).delete()
+    dish_name = item.name
     db.session.delete(item)
     db.session.commit()
-    return jsonify({"success": True, "message": f"Menu item '{item.name}' deleted successfully."}), 200
+    return jsonify({"success": True, "message": f"Menu item '{dish_name}' deleted successfully."}), 200
 
 
 # ==================== RECIPE (BOM) ROUTES ====================
@@ -207,6 +223,53 @@ def add_ingredient_to_recipe():
         "message": f"Added '{ingredient.name}' to recipe formula for '{menu_item.name}'.",
         "data": recipe.to_dict()
     }), 201
+
+
+@menu_recipes_bp.route("/recipes/batch", methods=["POST"])
+def set_dish_recipes_batch():
+    """Allows setting or updating multiple ingredients for a dish BOM at once"""
+    data = request.get_json() or {}
+    menu_item_id = data.get("menuItemId") or data.get("menu_item_id")
+    ingredients_list = data.get("ingredients", [])
+
+    if not menu_item_id:
+        return jsonify({"success": False, "message": "menuItemId is required."}), 400
+
+    menu_item = db.session.get(MenuItem, int(menu_item_id))
+    if not menu_item:
+        return jsonify({"success": False, "message": "Menu item not found."}), 404
+
+    # Clear existing recipe ingredients
+    Recipe.query.filter_by(menu_item_id=menu_item.id).delete()
+
+    created_recipes = []
+    for it in ingredients_list:
+        ing_id = it.get("ingredientId") or it.get("ingredient_id")
+        q = float(it.get("quantity", 0.0))
+        u = it.get("unit", "kg")
+        loss = float(it.get("prepLossPercentage") or it.get("prep_loss_percentage") or 0.0)
+
+        if ing_id and q > 0:
+            rec = Recipe(
+                menu_item_id=menu_item.id,
+                ingredient_id=int(ing_id),
+                quantity=q,
+                unit=u,
+                prep_loss_percentage=loss
+            )
+            db.session.add(rec)
+            created_recipes.append(rec)
+
+    db.session.flush()
+    menu_item.calculate_cost_and_margin()
+    db.session.commit()
+
+    return jsonify({
+        "success": True,
+        "message": f"Recipe formula for '{menu_item.name}' updated with {len(created_recipes)} ingredients.",
+        "dish": menu_item.to_dict(),
+        "ingredients": [r.to_dict() for r in created_recipes]
+    }), 200
 
 
 @menu_recipes_bp.route("/recipes/<int:recipe_id>", methods=["PUT"])

@@ -164,3 +164,4 @@ def receive_purchase_order(po_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": f"Failed to receive PO: {str(e)}"}), 500
+

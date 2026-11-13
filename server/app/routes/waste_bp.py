@@ -169,3 +169,4 @@ def get_waste_summary():
             "reasonBreakdown": reason_list
         }
     }), 200
+

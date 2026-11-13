@@ -62,3 +62,4 @@ class Ingredient(db.Model):
             data["batches"] = [b.to_dict() for b in batches_list]
 
         return data
+

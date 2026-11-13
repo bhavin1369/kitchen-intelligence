@@ -41,3 +41,4 @@ def retrain_model():
             "features": ["DayOfWeek", "Rolling7DayAvg", "DiwaliMultiplier", "WeatherFactor"]
         }
     }), 200
+

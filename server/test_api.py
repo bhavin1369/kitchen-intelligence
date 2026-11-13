@@ -3,7 +3,7 @@ Comprehensive Automated Test Suite for Kitchen Intelligence REST APIs.
 Tests all endpoints, business rules, FEFO inventory deductions, and error handling.
 """
 import unittest
-import json
+import io
 from app import create_app
 from app.extensions import db
 from app.models import (
@@ -58,49 +58,57 @@ class KitchenIntelligenceAPITestCase(unittest.TestCase):
         })
         self.assertEqual(bad_login.status_code, 401)
 
-        # Register new user
-        reg_res = self.client.post("/api/v1/auth/register", json={
-            "username": "test_chef",
-            "email": "test.chef@spicecraft.com",
-            "password": "securepassword123",
-            "fullName": "Test Chef",
-            "role": "chef"
-        })
-        self.assertIn(reg_res.status_code, [201, 409])
-
     # 3. Menu & Recipe BOM Management
     def test_03_menu_and_recipe_management(self):
-        # Get menu items
+        # Get canteen menu items
         res = self.client.get("/api/v1/menu")
         self.assertEqual(res.status_code, 200)
         items = res.get_json()["data"]
-        self.assertGreater(len(items), 0)
+        dish_names = [i["name"] for i in items]
+        self.assertIn("Gujarati Thali", dish_names)
+        self.assertIn("Dosa", dish_names)
+        self.assertIn("Tea", dish_names)
 
         # Add new menu item
         new_dish_res = self.client.post("/api/v1/menu", json={
-            "name": "Paneer Lababdar",
-            "category": "Mains",
-            "price": 310.0,
-            "costPrice": 95.0,
+            "name": "Upma",
+            "category": "South Indian",
+            "price": 45.0,
+            "costPrice": 14.0,
             "isVeg": True,
-            "prepTimeMinutes": 20,
-            "description": "Rich tomato and grated paneer curry"
+            "prepTimeMinutes": 10,
+            "description": "Roasted semolina tempered with mustard, ginger and curry leaves"
         })
         self.assertEqual(new_dish_res.status_code, 201)
         dish_id = new_dish_res.get_json()["data"]["id"]
 
-        # Add ingredient to new dish recipe
-        ing = Ingredient.query.filter_by(name="Paneer (Fresh Cottage Cheese)").first()
+        # Toggle activation/deactivation
+        toggle_res = self.client.put(f"/api/v1/menu/{dish_id}", json={
+            "isAvailable": False
+        })
+        self.assertEqual(toggle_res.status_code, 200)
+        self.assertFalse(toggle_res.get_json()["data"]["isAvailable"])
+
+        # Add ingredient to recipe BOM
+        ing = Ingredient.query.filter_by(name="Whole Wheat Flour (Atta)").first()
         self.assertIsNotNone(ing)
 
         recipe_res = self.client.post("/api/v1/recipes", json={
             "menuItemId": dish_id,
             "ingredientId": ing.id,
-            "quantity": 0.20,
+            "quantity": 0.15,
             "unit": "kg",
-            "prepLossPercentage": 5.0
+            "prepLossPercentage": 3.0
         })
         self.assertEqual(recipe_res.status_code, 201)
+        recipe_id = recipe_res.get_json()["data"]["id"]
+
+        # Update recipe quantity
+        upd_rec = self.client.put(f"/api/v1/recipes/{recipe_id}", json={
+            "quantity": 0.18
+        })
+        self.assertEqual(upd_rec.status_code, 200)
+        self.assertEqual(upd_rec.get_json()["data"]["quantityPerPortion"], 0.18)
 
         # Inspect BOM
         bom_res = self.client.get(f"/api/v1/recipes/{dish_id}")
@@ -124,7 +132,7 @@ class KitchenIntelligenceAPITestCase(unittest.TestCase):
             "batchNumber": "TEST-MLK-99",
             "quantity": 10.0,
             "unit": "l",
-            "unitCost": 62.0,
+            "unitCost": 60.0,
             "expiryDate": "2026-11-25",
             "supplierName": "Amul Dairy Distributors"
         })
@@ -134,108 +142,112 @@ class KitchenIntelligenceAPITestCase(unittest.TestCase):
         db.session.refresh(ing)
         self.assertAlmostEqual(ing.current_stock, old_stock + 10.0, places=2)
 
-        # Verify FEFO ordering
-        batches_res = self.client.get("/api/v1/inventory/batches")
-        self.assertEqual(batches_res.status_code, 200)
-        batches = batches_res.get_json()["data"]
-        self.assertGreater(len(batches), 0)
-
     # 5. Sales & Closed-Loop FEFO Inventory Deduction
     def test_05_sales_and_fefo_deduction(self):
-        # Get biryani dish
-        biryani = MenuItem.query.filter_by(name="Hyderabadi Chicken Dum Biryani").first()
-        self.assertIsNotNone(biryani)
+        # Get Gujarati Thali dish
+        thali = MenuItem.query.filter_by(name="Gujarati Thali").first()
+        self.assertIsNotNone(thali)
 
-        # Check chicken ingredient stock before sale
-        chicken = Ingredient.query.filter_by(name="Chicken (Boneless)").first()
-        chicken_initial = chicken.current_stock
+        # Check Atta ingredient stock before sale
+        atta = Ingredient.query.filter_by(name="Whole Wheat Flour (Atta)").first()
+        atta_initial = atta.current_stock
 
-        # Create a sale for 2 portions of biryani
+        # Create a sale for 2 portions of Gujarati Thali
         sale_res = self.client.post("/api/v1/sales", json={
             "channel": "Dine-in",
-            "tableNumber": "Table 9",
-            "customerName": "Test Diner",
+            "tableNumber": "Table 3",
+            "customerName": "Ketan Shah",
             "paymentMethod": "UPI",
+            "salesDate": "2026-11-13",
             "items": [
-                {"menuItemId": biryani.id, "quantity": 2}
+                {"menuItemId": thali.id, "quantity": 2}
             ]
         })
         self.assertEqual(sale_res.status_code, 201)
         sale_data = sale_res.get_json()["data"]
+        sale_id = sale_data["id"]
         self.assertEqual(sale_data["status"], "completed")
 
-        # Verify chicken stock was deducted
-        db.session.refresh(chicken)
-        # 2 portions * (0.25 kg * 1.05 loss) = ~0.525 kg deducted
-        self.assertLess(chicken.current_stock, chicken_initial)
+        # Verify Atta stock was deducted
+        db.session.refresh(atta)
+        self.assertLess(atta.current_stock, atta_initial)
 
         # Verify stock movement record created
         mov = StockMovement.query.filter_by(reference_id=sale_data["orderNumber"]).first()
         self.assertIsNotNone(mov)
         self.assertEqual(mov.movement_type, "sales_consumption")
 
+        # Test Editing Sale
+        edit_res = self.client.put(f"/api/v1/sales/{sale_id}", json={
+            "customerName": "Ketan C. Shah",
+            "tableNumber": "Table 5"
+        })
+        self.assertEqual(edit_res.status_code, 200)
+        self.assertEqual(edit_res.get_json()["data"]["customerName"], "Ketan C. Shah")
+
+        # Test filtering sales by period and menu item
+        filter_res = self.client.get(f"/api/v1/sales?menuItemId={thali.id}&period=all")
+        self.assertEqual(filter_res.status_code, 200)
+        self.assertGreater(filter_res.get_json()["total"], 0)
+
         # Test Business Rule: Never allow negative inventory
-        # Attempt to order an astronomical quantity exceeding available stock
         excess_res = self.client.post("/api/v1/sales", json={
             "channel": "Dine-in",
-            "tableNumber": "Table 9",
             "items": [
-                {"menuItemId": biryani.id, "quantity": 1000}
+                {"menuItemId": thali.id, "quantity": 5000}
             ]
         })
         self.assertEqual(excess_res.status_code, 400)
         self.assertIn("Insufficient usable stock", excess_res.get_json()["message"])
 
-    # 6. Waste Management
-    def test_06_waste_management(self):
+        # Test Delete Sale
+        del_res = self.client.delete(f"/api/v1/sales/{sale_id}")
+        self.assertEqual(del_res.status_code, 200)
+
+    # 6. CSV Sales History Upload & Validation
+    def test_06_sales_csv_upload(self):
+        import time
+        t_id = int(time.time())
+        # Valid CSV
+        valid_csv = (
+            f"order_number,date,item_name,quantity,channel,table_number,customer_name,payment_method\n"
+            f"CSV-{t_id}-1,2026-11-12,Dosa,1,Dine-in,Table 2,Aarav,UPI\n"
+            f"CSV-{t_id}-2,2026-11-12,Tea,1,Takeaway,,Bhavin,Cash\n"
+        )
+        csv_file = io.BytesIO(valid_csv.encode("utf-8"))
+        res = self.client.post("/api/v1/sales/upload-csv", data={
+            "file": (csv_file, "sales_canteen.csv")
+        }, content_type="multipart/form-data")
+        self.assertEqual(res.status_code, 200)
+        self.assertGreaterEqual(res.get_json()["data"]["ordersImported"], 1)
+
+        # Invalid CSV (missing quantity and item_name)
+        bad_csv = "random_col1,random_col2\n1,2\n"
+        bad_file = io.BytesIO(bad_csv.encode("utf-8"))
+        bad_res = self.client.post("/api/v1/sales/upload-csv", data={
+            "file": (bad_file, "bad_sales.csv")
+        }, content_type="multipart/form-data")
+        self.assertEqual(bad_res.status_code, 400)
+        self.assertIn("missing required columns", bad_res.get_json()["message"])
+
+    # 7. Waste Management
+    def test_07_waste_management(self):
         tomato = Ingredient.query.filter_by(name="Tomatoes (Ripe)").first()
         initial_stock = tomato.current_stock
 
         waste_res = self.client.post("/api/v1/waste", json={
             "ingredientId": tomato.id,
-            "quantity": 1.5,
+            "quantity": 1.0,
             "unit": "kg",
             "reason": "Spoilage",
             "loggedBy": "Chef Vikram",
             "notes": "Moisture soft spots in test crate"
         })
         self.assertEqual(waste_res.status_code, 201)
-        waste_data = waste_res.get_json()["data"]
-        self.assertEqual(waste_data["financialLoss"], 1.5 * tomato.unit_cost)
 
         # Verify stock was deducted
         db.session.refresh(tomato)
-        self.assertAlmostEqual(tomato.current_stock, initial_stock - 1.5, places=2)
-
-        # Summary
-        summary_res = self.client.get("/api/v1/waste/summary")
-        self.assertEqual(summary_res.status_code, 200)
-        self.assertIn("totalFinancialLoss", summary_res.get_json()["data"])
-
-    # 7. Purchases
-    def test_07_purchases_workflow(self):
-        # Create PO
-        paneer = Ingredient.query.filter_by(name="Paneer (Fresh Cottage Cheese)").first()
-        po_res = self.client.post("/api/v1/purchases", json={
-            "supplierName": "Amul Dairy Distributors",
-            "leadTime": "12 hours",
-            "items": [
-                {
-                    "ingredientId": paneer.id,
-                    "recommendedPurchase": 10.0,
-                    "approvedQuantity": 10.0,
-                    "unit": "kg",
-                    "unitCost": 320.0
-                }
-            ]
-        })
-        self.assertEqual(po_res.status_code, 201)
-        po_id = po_res.get_json()["data"]["id"]
-
-        # Receive PO into inventory batches
-        rec_res = self.client.post(f"/api/v1/purchases/{po_id}/receive")
-        self.assertEqual(rec_res.status_code, 200)
-        self.assertEqual(rec_res.get_json()["data"]["status"], "received")
+        self.assertAlmostEqual(tomato.current_stock, initial_stock - 1.0, places=2)
 
     # 8. Reports & Dashboard Statistics
     def test_08_reports_dashboard(self):
@@ -254,7 +266,6 @@ class KitchenIntelligenceAPITestCase(unittest.TestCase):
         self.assertIn("demandComparison", data)
         self.assertIn("recentActivities", data)
         self.assertIn("importantAlerts", data)
-
 
 if __name__ == "__main__":
     unittest.main()

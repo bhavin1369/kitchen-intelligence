@@ -1,103 +1,267 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import {
   UtensilsCrossed,
   Search,
   Plus,
   Clock,
   Sparkles,
-  ToggleLeft,
-  ToggleRight,
   TrendingUp,
   Percent,
   CheckCircle2,
+  AlertCircle,
   X,
-  Edit2
+  Edit2,
+  Trash2,
+  RefreshCw,
+  Loader2
 } from "lucide-react"
-import { menuCatalog as initialMenu } from "../data/mockData"
 import { Link } from "react-router-dom"
+import { menuService } from "../services/api"
 
 export const MenuPage = () => {
-  const [menuItems, setMenuItems] = useState(initialMenu)
+  const [menuItems, setMenuItems] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [error, setError] = useState(null)
+  const [successMsg, setSuccessMsg] = useState(null)
+
+  // Filters
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [dietFilter, setDietFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
+
+  // Modals
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingItem, setEditingItem] = useState(null)
+  const [itemToDelete, setItemToDelete] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
-  // New item form
-  const [newItemName, setNewItemName] = useState("")
-  const [newItemCategory, setNewItemCategory] = useState("Mains")
-  const [newItemPrice, setNewItemPrice] = useState(280)
-  const [newItemCost, setNewItemCost] = useState(95)
-  const [newItemPrepTime, setNewItemPrepTime] = useState(20)
-  const [newItemIsVeg, setNewItemIsVeg] = useState(true)
-  const [newItemDesc, setNewItemDesc] = useState("")
+  // Form State
+  const [formName, setFormName] = useState("")
+  const [formCategory, setFormCategory] = useState("Mains")
+  const [formPrice, setFormPrice] = useState(150)
+  const [formCost, setFormCost] = useState(50)
+  const [formPrepTime, setFormPrepTime] = useState(15)
+  const [formIsVeg, setFormIsVeg] = useState(true)
+  const [formDesc, setFormDesc] = useState("")
 
-  const categories = ["all", "Starters", "Mains", "Biryani", "Breads", "Desserts", "Beverages"]
+  // Fetch Menu from Flask API
+  const fetchMenuItems = async (silent = false) => {
+    if (!silent) setLoading(true)
+    else setRefreshing(true)
+    setError(null)
 
+    try {
+      const res = await menuService.getAll()
+      if (res.data?.success) {
+        setMenuItems(res.data.data || [])
+      } else {
+        setError(res.data?.message || "Failed to load menu items.")
+      }
+    } catch (err) {
+      console.error("Failed to load menu:", err)
+      setError(
+        err.response?.data?.message ||
+        "Unable to connect to Flask backend. Please ensure the backend is running."
+      )
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchMenuItems()
+  }, [])
+
+  // Auto-dismiss notification
+  useEffect(() => {
+    if (successMsg) {
+      const timer = setTimeout(() => setSuccessMsg(null), 4000)
+      return () => clearTimeout(timer)
+    }
+  }, [successMsg])
+
+  // Extract unique categories from backend items
+  const baseCategories = ["all", "Thali", "Mains", "South Indian", "Snacks", "Beverages", "Starters", "Desserts"]
+  const dynamicCategories = Array.from(new Set(menuItems.map((m) => m.category).filter(Boolean)))
+  const allCategories = Array.from(new Set([...baseCategories, ...dynamicCategories]))
+
+  // Filtered Items
   const filteredItems = menuItems.filter((item) => {
-    const matchesCategory = selectedCategory === "all" || item.category === selectedCategory
+    const matchesCategory =
+      selectedCategory === "all" ||
+      item.category?.toLowerCase() === selectedCategory.toLowerCase()
+
     const matchesDiet =
       dietFilter === "all" ||
       (dietFilter === "veg" && item.isVeg) ||
       (dietFilter === "nonveg" && !item.isVeg)
-    const matchesSearch =
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchQuery.toLowerCase())
 
-    return matchesCategory && matchesDiet && matchesSearch
+    const matchesStatus =
+      statusFilter === "all" ||
+      (statusFilter === "active" && item.isAvailable) ||
+      (statusFilter === "inactive" && !item.isAvailable)
+
+    const matchesSearch =
+      item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description?.toLowerCase().includes(searchQuery.toLowerCase())
+
+    return matchesCategory && matchesDiet && matchesStatus && matchesSearch
   })
 
-  // Toggle availability
-  const handleToggleStatus = (id) => {
-    setMenuItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: item.status === "active" ? "inactive" : "active" } : item))
-    )
-  }
+  // Toggle Availability (live POS toggle)
+  const handleToggleStatus = async (item) => {
+    try {
+      const updatedAvailability = !item.isAvailable
+      // Optimistic update
+      setMenuItems((prev) =>
+        prev.map((it) =>
+          it.id === item.id
+            ? { ...it, isAvailable: updatedAvailability, status: updatedAvailability ? "active" : "inactive" }
+            : it
+        )
+      )
 
-  // Add Item
-  const handleAddItem = (e) => {
-    e.preventDefault()
-    const margin = Math.round(((newItemPrice - newItemCost) / newItemPrice) * 100)
-    const newItem = {
-      id: menuItems.length + 1,
-      name: newItemName,
-      category: newItemCategory,
-      price: Number(newItemPrice),
-      costPrice: Number(newItemCost),
-      marginPercent: margin,
-      prepTimeMinutes: Number(newItemPrepTime),
-      isVeg: newItemIsVeg,
-      status: "active",
-      popularityRank: menuItems.length + 1,
-      description: newItemDesc || "Freshly curated kitchen recipe",
+      await menuService.update(item.id, { isAvailable: updatedAvailability })
+      setSuccessMsg(`"${item.name}" is now ${updatedAvailability ? "active in POS" : "inactive (hidden)"}.`)
+    } catch (err) {
+      console.error("Failed to toggle status:", err)
+      setError(err.response?.data?.message || "Failed to update availability status.")
+      fetchMenuItems(true)
     }
-    setMenuItems([...menuItems, newItem])
-    setShowAddModal(false)
-    setNewItemName("")
-    setNewItemDesc("")
   }
 
-  // Metrics
+  // Open Create Modal
+  const handleOpenCreateModal = () => {
+    setEditingItem(null)
+    setFormName("")
+    setFormCategory("Mains")
+    setFormPrice(150)
+    setFormCost(50)
+    setFormPrepTime(15)
+    setFormIsVeg(true)
+    setFormDesc("")
+    setShowAddModal(true)
+  }
+
+  // Open Edit Modal
+  const handleOpenEditModal = (item) => {
+    setEditingItem(item)
+    setFormName(item.name)
+    setFormCategory(item.category || "Mains")
+    setFormPrice(item.price)
+    setFormCost(item.costPrice || 0)
+    setFormPrepTime(item.prepTimeMinutes || 15)
+    setFormIsVeg(item.isVeg !== false)
+    setFormDesc(item.description || "")
+    setShowAddModal(true)
+  }
+
+  // Submit Create or Edit
+  const handleSaveItem = async (e) => {
+    e.preventDefault()
+    if (!formName.trim()) {
+      setError("Dish name is required.")
+      return
+    }
+
+    setSubmitting(true)
+    setError(null)
+
+    const payload = {
+      name: formName.trim(),
+      category: formCategory.trim(),
+      price: Number(formPrice),
+      costPrice: Number(formCost),
+      prepTimeMinutes: Number(formPrepTime),
+      isVeg: Boolean(formIsVeg),
+      description: formDesc.trim(),
+    }
+
+    try {
+      if (editingItem) {
+        const res = await menuService.update(editingItem.id, payload)
+        if (res.data?.success) {
+          setSuccessMsg(`"${payload.name}" updated successfully.`)
+          setShowAddModal(false)
+          fetchMenuItems(true)
+        }
+      } else {
+        const res = await menuService.create({ ...payload, isAvailable: true })
+        if (res.data?.success) {
+          setSuccessMsg(`"${payload.name}" created and added to canteen menu.`)
+          setShowAddModal(false)
+          fetchMenuItems(true)
+        }
+      }
+    } catch (err) {
+      console.error("Save error:", err)
+      setError(err.response?.data?.message || "Failed to save menu dish.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  // Delete Dish
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return
+    setSubmitting(true)
+
+    try {
+      const res = await menuService.delete(itemToDelete.id)
+      if (res.data?.success) {
+        setSuccessMsg(`"${itemToDelete.name}" was deleted successfully.`)
+        setItemToDelete(null)
+        setMenuItems((prev) => prev.filter((m) => m.id !== itemToDelete.id))
+      }
+    } catch (err) {
+      console.error("Delete error:", err)
+      setError(err.response?.data?.message || "Failed to delete dish.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  // Aggregate Metrics
   const totalItems = menuItems.length
-  const activeItems = menuItems.filter((m) => m.status === "active").length
-  const avgMargin = Math.round(
-    menuItems.reduce((acc, m) => acc + m.marginPercent, 0) / (totalItems || 1)
-  )
+  const activeItems = menuItems.filter((m) => m.isAvailable).length
+  const vegCount = menuItems.filter((m) => m.isVeg).length
+  const nonVegCount = totalItems - vegCount
+  const avgMargin = totalItems
+    ? Math.round(menuItems.reduce((acc, m) => acc + (m.marginPercent || 0), 0) / totalItems)
+    : 0
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-warm-200">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-forest-900 tracking-tight">
-            Menu Management
-          </h1>
+          <div className="flex items-center space-x-2">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-forest-900 tracking-tight">
+              Menu Management
+            </h1>
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-forest-100 text-forest-900 border border-forest-200 uppercase tracking-wider">
+              Live SQLite DB
+            </span>
+          </div>
           <p className="text-sm text-stone-500 mt-1">
-            Configure sales catalog, selling prices, prep times, and live POS availability.
+            Configure canteen catalog, dish selling prices, prep times, and live POS availability.
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
+          <button
+            onClick={() => fetchMenuItems(true)}
+            disabled={refreshing}
+            className="p-2.5 rounded-lg bg-warm-100 hover:bg-warm-200 text-stone-700 text-xs font-semibold transition flex items-center space-x-1 cursor-pointer"
+            title="Refresh from Database"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-forest-800" : ""}`} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
           <Link
             to="/recipes"
             className="px-3.5 py-2.5 rounded-lg bg-warm-100 hover:bg-warm-200 text-stone-700 text-xs font-semibold transition"
@@ -105,7 +269,7 @@ export const MenuPage = () => {
             Inspect Recipe BOMs →
           </Link>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleOpenCreateModal}
             className="px-4 py-2.5 rounded-lg bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold shadow-md transition flex items-center space-x-2 cursor-pointer"
           >
             <Plus className="w-4 h-4 text-gold-400" />
@@ -114,32 +278,57 @@ export const MenuPage = () => {
         </div>
       </div>
 
+      {/* Notifications */}
+      {successMsg && (
+        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between animate-in fade-in">
+          <div className="flex items-center space-x-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span className="font-medium">{successMsg}</span>
+          </div>
+          <button onClick={() => setSuccessMsg(null)} className="text-emerald-700 hover:text-emerald-900">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-center justify-between animate-in fade-in">
+          <div className="flex items-center space-x-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span className="font-medium">{error}</span>
+          </div>
+          <button onClick={() => setError(null)} className="text-rose-700 hover:text-rose-900">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
           <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Total Menu Items</div>
           <div className="text-2xl font-bold text-stone-900 mt-2">{totalItems}</div>
-          <p className="text-[11px] text-stone-500 mt-1">Across 6 culinary categories</p>
+          <p className="text-[11px] text-stone-500 mt-1">Canteen catalog entries</p>
         </div>
 
         <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
           <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Live in POS</div>
           <div className="text-2xl font-bold text-forest-900 mt-2">{activeItems}</div>
-          <p className="text-[11px] text-emerald-700 font-medium mt-1">Ready for ordering</p>
+          <p className="text-[11px] text-emerald-700 font-medium mt-1">Ready for order taking</p>
         </div>
 
         <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
           <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Avg Gross Margin</div>
           <div className="text-2xl font-bold text-gold-700 mt-2">{avgMargin}%</div>
-          <p className="text-[11px] text-stone-500 mt-1">Food cost avg: {100 - avgMargin}%</p>
+          <p className="text-[11px] text-stone-500 mt-1">Calculated from raw ingredient BOM</p>
         </div>
 
         <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
           <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Dietary Split</div>
           <div className="text-2xl font-bold text-stone-900 mt-2">
-            {menuItems.filter((i) => i.isVeg).length}V / {menuItems.filter((i) => !i.isVeg).length}NV
+            {vegCount} Veg / {nonVegCount} Non-Veg
           </div>
-          <p className="text-[11px] text-stone-500 mt-1">Balanced vegetarian ratio</p>
+          <p className="text-[11px] text-stone-500 mt-1">Canteen dietary balance</p>
         </div>
       </div>
 
@@ -150,45 +339,66 @@ export const MenuPage = () => {
             <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
             <input
               type="text"
-              placeholder="Search dishes or ingredients..."
+              placeholder="Search dishes or categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 text-xs rounded-lg bg-warm-50 border border-warm-200 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-forest-800"
             />
           </div>
 
-          <div className="flex items-center space-x-2 text-xs">
-            <span className="text-stone-500 font-semibold">Diet:</span>
-            <button
-              onClick={() => setDietFilter("all")}
-              className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                dietFilter === "all" ? "bg-forest-900 text-white" : "bg-warm-100 text-stone-700 hover:bg-warm-200"
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setDietFilter("veg")}
-              className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                dietFilter === "veg" ? "bg-forest-700 text-white" : "bg-warm-100 text-stone-700 hover:bg-warm-200"
-              }`}
-            >
-              Pure Veg
-            </button>
-            <button
-              onClick={() => setDietFilter("nonveg")}
-              className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                dietFilter === "nonveg" ? "bg-amber-700 text-white" : "bg-warm-100 text-stone-700 hover:bg-warm-200"
-              }`}
-            >
-              Non-Veg
-            </button>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            {/* Status Filter */}
+            <div className="flex items-center space-x-1 bg-warm-100/60 p-1 rounded-lg">
+              <span className="text-stone-500 font-semibold px-1 text-[11px]">Status:</span>
+              {["all", "active", "inactive"].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => setStatusFilter(st)}
+                  className={`px-2.5 py-1 rounded-md capitalize font-medium transition ${
+                    statusFilter === st
+                      ? "bg-forest-900 text-white shadow-xs"
+                      : "text-stone-600 hover:text-stone-900"
+                  }`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
+
+            {/* Diet Filter */}
+            <div className="flex items-center space-x-1 bg-warm-100/60 p-1 rounded-lg">
+              <span className="text-stone-500 font-semibold px-1 text-[11px]">Diet:</span>
+              <button
+                onClick={() => setDietFilter("all")}
+                className={`px-2.5 py-1 rounded-md font-medium transition ${
+                  dietFilter === "all" ? "bg-forest-900 text-white shadow-xs" : "text-stone-600 hover:text-stone-900"
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setDietFilter("veg")}
+                className={`px-2.5 py-1 rounded-md font-medium transition ${
+                  dietFilter === "veg" ? "bg-emerald-700 text-white shadow-xs" : "text-stone-600 hover:text-stone-900"
+                }`}
+              >
+                Veg
+              </button>
+              <button
+                onClick={() => setDietFilter("nonveg")}
+                className={`px-2.5 py-1 rounded-md font-medium transition ${
+                  dietFilter === "nonveg" ? "bg-amber-700 text-white shadow-xs" : "text-stone-600 hover:text-stone-900"
+                }`}
+              >
+                Non-Veg
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Category Pill Tabs */}
         <div className="flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
-          {categories.map((cat) => (
+          {allCategories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
@@ -205,96 +415,146 @@ export const MenuPage = () => {
       </div>
 
       {/* Menu Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredItems.map((item) => (
-          <div
-            key={item.id}
-            className={`p-5 rounded-2xl bg-white border transition shadow-card hover:shadow-card-hover flex flex-col justify-between ${
-              item.status === "active" ? "border-warm-200" : "border-stone-200 opacity-60 bg-stone-50"
-            }`}
+      {loading ? (
+        <div className="py-20 text-center flex flex-col items-center justify-center space-y-3">
+          <Loader2 className="w-8 h-8 text-forest-800 animate-spin" />
+          <p className="text-sm text-stone-500">Loading dishes from database...</p>
+        </div>
+      ) : filteredItems.length === 0 ? (
+        <div className="py-16 text-center bg-white rounded-2xl border border-warm-200 p-8 shadow-card">
+          <UtensilsCrossed className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-stone-800">No menu items found</h3>
+          <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
+            Try adjusting your search query, diet filter, or category selector, or add a new menu dish.
+          </p>
+          <button
+            onClick={handleOpenCreateModal}
+            className="mt-4 px-4 py-2 rounded-lg bg-forest-900 text-white text-xs font-semibold"
           >
-            <div>
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-2">
-                  <span
-                    className={`w-3.5 h-3.5 rounded-sm flex items-center justify-center border ${
-                      item.isVeg ? "border-green-600" : "border-red-600"
-                    }`}
-                  >
+            Create First Dish
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredItems.map((item) => (
+            <div
+              key={item.id}
+              className={`p-5 rounded-2xl bg-white border transition shadow-card hover:shadow-card-hover flex flex-col justify-between ${
+                item.isAvailable ? "border-warm-200" : "border-stone-200 opacity-60 bg-stone-50"
+              }`}
+            >
+              <div>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-2">
                     <span
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        item.isVeg ? "bg-green-600" : "bg-red-600"
+                      className={`w-3.5 h-3.5 rounded-sm flex items-center justify-center border ${
+                        item.isVeg ? "border-green-600" : "border-red-600"
                       }`}
-                    />
-                  </span>
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400">
-                    {item.category}
-                  </span>
-                </div>
-
-                {/* Status Toggle */}
-                <button
-                  onClick={() => handleToggleStatus(item.id)}
-                  title="Toggle POS Availability"
-                  className="cursor-pointer"
-                >
-                  {item.status === "active" ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-forest-100 text-forest-800 border border-forest-200">
-                      Active
+                      title={item.isVeg ? "Vegetarian" : "Non-Vegetarian"}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          item.isVeg ? "bg-green-600" : "bg-red-600"
+                        }`}
+                      />
                     </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-200 text-stone-600">
-                      Inactive
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-stone-400">
+                      {item.category}
                     </span>
-                  )}
-                </button>
+                  </div>
+
+                  <div className="flex items-center space-x-1.5">
+                    {/* Status Toggle */}
+                    <button
+                      onClick={() => handleToggleStatus(item)}
+                      title="Click to toggle POS availability"
+                      className="cursor-pointer"
+                    >
+                      {item.isAvailable ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-forest-100 text-forest-800 border border-forest-200">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-200 text-stone-600">
+                          Inactive
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Edit button */}
+                    <button
+                      onClick={() => handleOpenEditModal(item)}
+                      title="Edit Dish"
+                      className="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-warm-100 transition"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+
+                    {/* Delete button */}
+                    <button
+                      onClick={() => setItemToDelete(item)}
+                      title="Delete Dish"
+                      className="p-1 rounded text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <h3 className="font-bold text-base text-stone-900 mt-2">{item.name}</h3>
+                <p className="text-xs text-stone-500 mt-1 line-clamp-2">
+                  {item.description || "Authentic freshly prepared kitchen recipe."}
+                </p>
               </div>
 
-              <h3 className="font-bold text-base text-stone-900 mt-2">{item.name}</h3>
-              <p className="text-xs text-stone-500 mt-1 line-clamp-2">{item.description}</p>
+              <div className="mt-4 pt-3 border-t border-warm-100">
+                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="p-2 rounded-lg bg-warm-50 border border-warm-100">
+                    <div className="text-[10px] text-stone-400 uppercase font-semibold">Selling Price</div>
+                    <div className="font-bold text-stone-900 mt-0.5">₹{item.price}</div>
+                  </div>
+                  <div className="p-2 rounded-lg bg-warm-50 border border-warm-100">
+                    <div className="text-[10px] text-stone-400 uppercase font-semibold">Food Cost</div>
+                    <div className="font-bold text-stone-700 mt-0.5">₹{item.costPrice}</div>
+                  </div>
+                  <div className="p-2 rounded-lg bg-forest-50 border border-forest-100">
+                    <div className="text-[10px] text-forest-700 uppercase font-semibold">Margin</div>
+                    <div className="font-bold text-forest-900 mt-0.5">{item.marginPercent}%</div>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between text-[11px] text-stone-500">
+                  <div className="flex items-center space-x-1">
+                    <Clock className="w-3.5 h-3.5 text-stone-400" />
+                    <span>Prep: {item.prepTimeMinutes || 15} mins</span>
+                  </div>
+                  <Link
+                    to={`/recipes?dishId=${item.id}`}
+                    className="font-semibold text-forest-900 hover:text-forest-700"
+                  >
+                    View Recipe BOM →
+                  </Link>
+                </div>
+              </div>
             </div>
+          ))}
+        </div>
+      )}
 
-            <div className="mt-4 pt-3 border-t border-warm-100">
-              <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                <div className="p-2 rounded-lg bg-warm-50 border border-warm-100">
-                  <div className="text-[10px] text-stone-400 uppercase font-semibold">Selling Price</div>
-                  <div className="font-bold text-stone-900 mt-0.5">₹{item.price}</div>
-                </div>
-                <div className="p-2 rounded-lg bg-warm-50 border border-warm-100">
-                  <div className="text-[10px] text-stone-400 uppercase font-semibold">Food Cost</div>
-                  <div className="font-bold text-stone-700 mt-0.5">₹{item.costPrice}</div>
-                </div>
-                <div className="p-2 rounded-lg bg-forest-50 border border-forest-100">
-                  <div className="text-[10px] text-forest-700 uppercase font-semibold">Margin</div>
-                  <div className="font-bold text-forest-900 mt-0.5">{item.marginPercent}%</div>
-                </div>
-              </div>
-
-              <div className="mt-3 flex items-center justify-between text-[11px] text-stone-500">
-                <div className="flex items-center space-x-1">
-                  <Clock className="w-3.5 h-3.5 text-stone-400" />
-                  <span>Prep: {item.prepTimeMinutes} mins</span>
-                </div>
-                <Link
-                  to="/recipes"
-                  className="font-semibold text-forest-900 hover:text-forest-700"
-                >
-                  View Recipe BOM →
-                </Link>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Add Menu Item Modal */}
+      {/* Add / Edit Menu Item Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-lg w-full border border-warm-200 shadow-2xl p-6 text-stone-800 animate-in fade-in">
             <div className="flex items-center justify-between pb-3 border-b border-warm-200">
               <div>
-                <h3 className="font-bold text-lg text-forest-900">Add New Menu Item</h3>
-                <p className="text-xs text-stone-500">Create a dish for POS and recipe explosion</p>
+                <h3 className="font-bold text-lg text-forest-900">
+                  {editingItem ? `Edit Dish: ${editingItem.name}` : "Add New Menu Item"}
+                </h3>
+                <p className="text-xs text-stone-500">
+                  {editingItem
+                    ? "Update selling price, category, and preparation specs"
+                    : "Create a dish for POS sales catalog and recipe explosion"}
+                </p>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
@@ -304,16 +564,18 @@ export const MenuPage = () => {
               </button>
             </div>
 
-            <form onSubmit={handleAddItem} className="mt-4 space-y-4">
+            <form onSubmit={handleSaveItem} className="mt-4 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-stone-600 mb-1">Dish Name</label>
+                <label className="block text-xs font-semibold text-stone-600 mb-1">
+                  Dish Name <span className="text-rose-500">*</span>
+                </label>
                 <input
                   type="text"
                   required
-                  value={newItemName}
-                  onChange={(e) => setNewItemName(e.target.value)}
-                  placeholder="e.g. Malai Kofta Curry"
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-warm-50 border border-warm-200"
+                  value={formName}
+                  onChange={(e) => setFormName(e.target.value)}
+                  placeholder="e.g. Gujarati Thali, Dosa, Tea"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-warm-50 border border-warm-200 text-stone-900 focus:outline-none focus:border-forest-800"
                 />
               </div>
 
@@ -321,25 +583,27 @@ export const MenuPage = () => {
                 <div>
                   <label className="block font-semibold text-stone-600 mb-1">Category</label>
                   <select
-                    value={newItemCategory}
-                    onChange={(e) => setNewItemCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200"
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
                   >
-                    <option value="Starters">Starters</option>
+                    <option value="Thali">Thali</option>
                     <option value="Mains">Mains</option>
-                    <option value="Biryani">Biryani</option>
+                    <option value="South Indian">South Indian</option>
+                    <option value="Snacks">Snacks</option>
+                    <option value="Beverages">Beverages</option>
+                    <option value="Starters">Starters</option>
                     <option value="Breads">Breads</option>
                     <option value="Desserts">Desserts</option>
-                    <option value="Beverages">Beverages</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block font-semibold text-stone-600 mb-1">Dietary Type</label>
                   <select
-                    value={newItemIsVeg ? "veg" : "nonveg"}
-                    onChange={(e) => setNewItemIsVeg(e.target.value === "veg")}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200"
+                    value={formIsVeg ? "veg" : "nonveg"}
+                    onChange={(e) => setFormIsVeg(e.target.value === "veg")}
+                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
                   >
                     <option value="veg">Pure Vegetarian (Green)</option>
                     <option value="nonveg">Non-Vegetarian (Red)</option>
@@ -349,14 +613,17 @@ export const MenuPage = () => {
 
               <div className="grid grid-cols-3 gap-3 text-xs">
                 <div>
-                  <label className="block font-semibold text-stone-600 mb-1">Selling Price (₹)</label>
+                  <label className="block font-semibold text-stone-600 mb-1">
+                    Selling Price (₹) <span className="text-rose-500">*</span>
+                  </label>
                   <input
                     type="number"
                     required
                     min={1}
-                    value={newItemPrice}
-                    onChange={(e) => setNewItemPrice(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200"
+                    step="0.5"
+                    value={formPrice}
+                    onChange={(e) => setFormPrice(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
                   />
                 </div>
 
@@ -364,11 +631,11 @@ export const MenuPage = () => {
                   <label className="block font-semibold text-stone-600 mb-1">Estimated Cost (₹)</label>
                   <input
                     type="number"
-                    required
-                    min={1}
-                    value={newItemCost}
-                    onChange={(e) => setNewItemCost(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200"
+                    min={0}
+                    step="0.5"
+                    value={formCost}
+                    onChange={(e) => setFormCost(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
                   />
                 </div>
 
@@ -378,21 +645,21 @@ export const MenuPage = () => {
                     type="number"
                     required
                     min={1}
-                    value={newItemPrepTime}
-                    onChange={(e) => setNewItemPrepTime(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200"
+                    value={formPrepTime}
+                    onChange={(e) => setFormPrepTime(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-stone-600 mb-1">Short Description</label>
+                <label className="block text-xs font-semibold text-stone-600 mb-1">Description</label>
                 <textarea
                   rows={2}
-                  value={newItemDesc}
-                  onChange={(e) => setNewItemDesc(e.target.value)}
-                  placeholder="Rich aromatic gravy made with cashew paste, cardamom..."
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-warm-50 border border-warm-200"
+                  value={formDesc}
+                  onChange={(e) => setFormDesc(e.target.value)}
+                  placeholder="Ingredients, accompaniments, or culinary notes..."
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
                 />
               </div>
 
@@ -400,22 +667,57 @@ export const MenuPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
+                  disabled={submitting}
                   className="px-4 py-2 rounded-lg bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-semibold"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold shadow transition"
+                  disabled={submitting}
+                  className="px-4 py-2 rounded-lg bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold shadow transition flex items-center space-x-1"
                 >
-                  Save Item
+                  {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>{editingItem ? "Update Dish" : "Save Item"}</span>
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {itemToDelete && (
+        <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-sm w-full border border-warm-200 shadow-2xl p-6 text-stone-800 animate-in fade-in">
+            <h3 className="font-bold text-base text-rose-900">Delete Menu Item</h3>
+            <p className="text-xs text-stone-600 mt-2">
+              Are you sure you want to delete <strong className="text-stone-900">"{itemToDelete.name}"</strong>?
+              This will also remove its associated Bill of Materials recipe.
+            </p>
+
+            <div className="flex justify-end space-x-2 mt-5">
+              <button
+                type="button"
+                onClick={() => setItemToDelete(null)}
+                disabled={submitting}
+                className="px-4 py-2 rounded-lg bg-stone-200 text-stone-800 text-xs font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={submitting}
+                className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center space-x-1"
+              >
+                {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>Delete Permanently</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-

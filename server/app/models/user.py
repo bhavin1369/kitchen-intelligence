@@ -52,3 +52,4 @@ class User(db.Model):
             "isActive": self.is_active,
             "createdAt": self.created_at.isoformat() if self.created_at else None
         }
+

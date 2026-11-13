@@ -96,3 +96,4 @@ class StockMovement(db.Model):
             "notes": self.notes,
             "createdAt": self.created_at.isoformat() if self.created_at else None
         }
+

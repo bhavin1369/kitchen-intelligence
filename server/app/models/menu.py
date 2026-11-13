@@ -53,3 +53,4 @@ class MenuItem(db.Model):
         if include_bom:
             data["ingredients"] = [r.to_dict() for r in self.recipes]
         return data
+

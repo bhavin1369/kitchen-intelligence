@@ -1,8 +1,19 @@
 """
 Sample seed data script for Kitchen Intelligence System.
-Populates realistic seed data across all 12 tables.
+Populates realistic Indian Canteen sample data for:
+- Gujarati Thali
+- Paneer Butter Masala
+- Vegetable Pulao
+- Sandwich
+- Dosa
+- Idli
+- Tea
+- Coffee
+Historical sales records are generated across daily, weekly, and monthly periods
+and explicitly marked with metadata '[SYNTHETIC GENERATED CANTEEN DATA]'.
 """
-from datetime import datetime, date, timedelta
+import random
+from datetime import datetime, date, timedelta, timezone
 from werkzeug.security import generate_password_hash
 from app import create_app
 from app.extensions import db
@@ -12,16 +23,17 @@ from app.models import (
     Purchase, PurchaseItem, WasteRecord, Forecast
 )
 
-def seed_database():
-    app = create_app()
+def seed_database(app=None):
+    if app is None:
+        app = create_app()
     with app.app_context():
-        print("[*] Starting database seeding...")
+        print("[*] Starting database seeding with Indian Canteen data...")
 
         # 1. Kitchen
         kitchen = Kitchen.query.first()
         if not kitchen:
             kitchen = Kitchen(
-                name="SpiceCraft Kitchen & Dining",
+                name="SpiceCraft Indian Canteen & Dining",
                 location="Jubilee Hills, Hyderabad, Telangana",
                 currency="INR",
                 tax_rate=5.0
@@ -29,7 +41,7 @@ def seed_database():
             db.session.add(kitchen)
             db.session.flush()
 
-        # 2. Users
+        # 2. Staff Users
         if User.query.count() == 0:
             users_data = [
                 ("chef_vikram", "chef.vikram@spicecraft.com", "chef123", "Vikram Sharma", "chef"),
@@ -51,38 +63,38 @@ def seed_database():
                 db.session.add(user)
             db.session.flush()
 
-        # 3. Ingredients Master (26 items)
+        # 3. Ingredients for Indian Canteen
         ingredients_map = {}
         if Ingredient.query.count() == 0:
-            raw_ingredients = [
-                ("ING-CHK-01", "Chicken (Boneless)", "Poultry & Meat", "kg", 8.0, 20.0, 10.0, 240.0, 4, "Royal Poultry Suppliers"),
-                ("ING-PAN-01", "Paneer (Fresh Cottage Cheese)", "Dairy", "kg", 14.5, 20.0, 8.0, 320.0, 4, "Amul Dairy Distributors"),
-                ("ING-RIC-01", "Basmati Rice (Aged)", "Grains & Staples", "kg", 45.0, 50.0, 15.0, 110.0, 90, "Everest Agro Foods"),
-                ("ING-TOM-01", "Tomatoes (Ripe)", "Produce", "kg", 18.0, 25.0, 10.0, 40.0, 6, "GreenFields Fresh Produce"),
-                ("ING-ONI-01", "Onions (Red)", "Produce", "kg", 32.0, 40.0, 15.0, 35.0, 14, "GreenFields Fresh Produce"),
-                ("ING-GHE-01", "Pure Desi Ghee", "Oils & Ghee", "kg", 12.0, 15.0, 5.0, 650.0, 60, "Amul Dairy Distributors"),
-                ("ING-MLK-01", "Whole Milk", "Dairy", "l", 16.0, 30.0, 10.0, 62.0, 3, "Amul Dairy Distributors"),
-                ("ING-CRM-01", "Fresh Cooking Cream", "Dairy", "l", 8.5, 12.0, 4.0, 210.0, 5, "Amul Dairy Distributors"),
-                ("ING-BUT-01", "Butter (Unsalted)", "Dairy", "kg", 9.0, 15.0, 5.0, 480.0, 30, "Amul Dairy Distributors"),
-                ("ING-MAI-01", "All-Purpose Flour (Maida)", "Grains & Staples", "kg", 28.0, 35.0, 10.0, 45.0, 60, "Metro Cash & Carry"),
-                ("ING-CSH-01", "Cashew Nuts (Split)", "Spices", "kg", 6.5, 10.0, 3.0, 780.0, 90, "Everest Spice Mart"),
-                ("ING-GG-01", "Ginger-Garlic Paste", "Produce", "kg", 7.0, 10.0, 3.0, 120.0, 10, "GreenFields Fresh Produce"),
-                ("ING-COR-01", "Fresh Coriander Leaves", "Produce", "kg", 2.2, 5.0, 2.0, 60.0, 3, "GreenFields Fresh Produce"),
-                ("ING-MNT-01", "Fresh Mint Leaves", "Produce", "kg", 1.8, 4.0, 1.5, 70.0, 3, "GreenFields Fresh Produce"),
-                ("ING-GM-01", "Garam Masala Blend", "Spices", "kg", 4.0, 6.0, 2.0, 520.0, 180, "Everest Spice Mart"),
-                ("ING-BIR-01", "Biryani Spices Blend", "Spices", "kg", 3.5, 5.0, 1.5, 580.0, 180, "Everest Spice Mart"),
-                ("ING-URD-01", "Black Urad Dal", "Grains & Staples", "kg", 15.0, 20.0, 6.0, 140.0, 90, "Metro Cash & Carry"),
-                ("ING-RAJ-01", "Kashmiri Rajma", "Grains & Staples", "kg", 8.0, 12.0, 4.0, 160.0, 90, "Metro Cash & Carry"),
-                ("ING-KHW-01", "Mawa / Khoya", "Dairy", "kg", 5.0, 8.0, 3.0, 360.0, 5, "Amul Dairy Distributors"),
-                ("ING-SUG-01", "Refined Sugar", "Grains & Staples", "kg", 25.0, 30.0, 10.0, 44.0, 180, "Metro Cash & Carry"),
-                ("ING-SAF-01", "Kashmiri Saffron", "Spices", "g", 40.0, 50.0, 15.0, 280.0, 365, "Royal Spices & Dry Fruits"),
-                ("ING-YOG-01", "Thick Curd / Dahi", "Dairy", "kg", 12.0, 18.0, 6.0, 75.0, 5, "Amul Dairy Distributors"),
-                ("ING-OIL-01", "Refined Mustard Oil", "Oils & Ghee", "l", 20.0, 25.0, 8.0, 150.0, 90, "Metro Cash & Carry"),
-                ("ING-CUM-01", "Cumin Seeds (Jeera)", "Spices", "kg", 4.5, 6.0, 2.0, 380.0, 180, "Everest Spice Mart"),
-                ("ING-TEA-01", "Assam CTC Tea Leaves", "Grains & Staples", "kg", 6.0, 10.0, 3.0, 320.0, 180, "Metro Cash & Carry"),
-                ("ING-CD-01", "Green Cardamom", "Spices", "kg", 1.5, 3.0, 1.0, 2400.0, 365, "Royal Spices & Dry Fruits")
+            canteen_raw_ingredients = [
+                # Grains & Staples
+                ("ING-ATT-01", "Whole Wheat Flour (Atta)", "Grains & Staples", "kg", 45.0, 50.0, 15.0, 42.0, 90, "Metro Cash & Carry"),
+                ("ING-RIC-01", "Basmati Rice (Aged)", "Grains & Staples", "kg", 60.0, 60.0, 20.0, 95.0, 180, "Everest Agro Foods"),
+                ("ING-TOR-01", "Toor Dal (Pigeon Pea)", "Grains & Staples", "kg", 30.0, 35.0, 10.0, 135.0, 180, "Metro Cash & Carry"),
+                ("ING-BAT-01", "Dosa & Idli Fermented Batter", "Grains & Staples", "kg", 25.0, 30.0, 8.0, 55.0, 3, "Sri Balaji Foods"),
+                ("ING-BRD-01", "Sandwich Bread (Jumbo Slices)", "Grains & Staples", "pcs", 80.0, 100.0, 30.0, 3.5, 4, "Modern Bakery"),
+                ("ING-SUG-01", "Refined Sugar", "Grains & Staples", "kg", 35.0, 40.0, 10.0, 44.0, 180, "Metro Cash & Carry"),
+                # Dairy
+                ("ING-PAN-01", "Paneer (Fresh Cottage Cheese)", "Dairy", "kg", 20.0, 25.0, 8.0, 320.0, 4, "Amul Dairy Distributors"),
+                ("ING-MLK-01", "Whole Milk", "Dairy", "l", 45.0, 50.0, 15.0, 60.0, 3, "Amul Dairy Distributors"),
+                ("ING-BUT-01", "Butter (Table Butter)", "Dairy", "kg", 18.0, 20.0, 6.0, 480.0, 30, "Amul Dairy Distributors"),
+                ("ING-CRM-01", "Fresh Cooking Cream", "Dairy", "l", 10.0, 12.0, 4.0, 210.0, 5, "Amul Dairy Distributors"),
+                ("ING-GHE-01", "Pure Desi Ghee", "Oils & Ghee", "kg", 16.0, 20.0, 5.0, 650.0, 90, "Amul Dairy Distributors"),
+                # Produce
+                ("ING-POT-01", "Potatoes (Aloo)", "Produce", "kg", 55.0, 60.0, 20.0, 28.0, 21, "GreenFields Fresh Produce"),
+                ("ING-TOM-01", "Tomatoes (Ripe)", "Produce", "kg", 30.0, 35.0, 12.0, 38.0, 6, "GreenFields Fresh Produce"),
+                ("ING-ONI-01", "Onions (Red)", "Produce", "kg", 45.0, 50.0, 15.0, 32.0, 14, "GreenFields Fresh Produce"),
+                ("ING-VEG-01", "Mixed Peas & Carrots", "Produce", "kg", 20.0, 25.0, 8.0, 65.0, 7, "GreenFields Fresh Produce"),
+                ("ING-COC-01", "Fresh Grated Coconut", "Produce", "kg", 10.0, 12.0, 4.0, 120.0, 4, "GreenFields Fresh Produce"),
+                ("ING-CHT-01", "Green Mint & Coriander Chutney", "Produce", "kg", 8.0, 10.0, 3.0, 80.0, 4, "GreenFields Fresh Produce"),
+                # Beverages & Spices
+                ("ING-TEA-01", "Assam CTC Tea Leaves", "Beverages", "kg", 12.0, 15.0, 4.0, 320.0, 180, "Everest Spice Mart"),
+                ("ING-COF-01", "South Indian Filter Coffee Powder", "Beverages", "kg", 8.0, 10.0, 3.0, 540.0, 180, "Narasu Coffee Co"),
+                ("ING-CSH-01", "Cashew Nuts (Split)", "Spices", "kg", 8.0, 10.0, 3.0, 780.0, 120, "Everest Spice Mart"),
+                ("ING-OIL-01", "Refined Sunflower Cooking Oil", "Oils & Ghee", "l", 35.0, 40.0, 12.0, 135.0, 120, "Metro Cash & Carry"),
+                ("ING-SPC-01", "Garam Masala & Curry Spices Blend", "Spices", "kg", 6.0, 8.0, 2.0, 480.0, 180, "Everest Spice Mart")
             ]
-            for sku, name, cat, unit, cur_stk, par, reorder, cost, shelf, supp in raw_ingredients:
+            for sku, name, cat, unit, cur_stk, par, reorder, cost, shelf, supp in canteen_raw_ingredients:
                 ing = Ingredient(
                     kitchen_id=kitchen.id,
                     sku=sku,
@@ -102,81 +114,75 @@ def seed_database():
         for i in Ingredient.query.all():
             ingredients_map[i.name] = i
 
-        # 4. Inventory Batches with FEFO Expiry
+        # 4. Inventory Batches (FEFO Tracking)
         today = date.today()
         if InventoryBatch.query.count() == 0:
-            batches_seed = [
-                # Critical batches (expiring in 1-2 days)
-                (ingredients_map.get("Paneer (Fresh Cottage Cheese)"), "PAN-01", 10.0, 4.5, 320.0, today - timedelta(days=3), today + timedelta(days=1), "critical"),
-                (ingredients_map.get("Whole Milk"), "MLK-01", 15.0, 5.0, 62.0, today - timedelta(days=2), today + timedelta(days=1), "critical"),
-                (ingredients_map.get("Tomatoes (Ripe)"), "TOM-01", 20.0, 6.0, 40.0, today - timedelta(days=5), today + timedelta(days=1), "critical"),
-                # Warning batches (expiring in 3 days)
-                (ingredients_map.get("Chicken (Boneless)"), "CHK-01", 20.0, 8.0, 240.0, today - timedelta(days=2), today + timedelta(days=2), "warning"),
-                (ingredients_map.get("Fresh Cooking Cream"), "CRM-01", 10.0, 3.5, 210.0, today - timedelta(days=3), today + timedelta(days=2), "warning"),
-                # Fresh batches (longer shelf life)
-                (ingredients_map.get("Basmati Rice (Aged)"), "RIC-01", 50.0, 45.0, 110.0, today - timedelta(days=10), today + timedelta(days=80), "fresh"),
-                (ingredients_map.get("Pure Desi Ghee"), "GHE-01", 15.0, 12.0, 650.0, today - timedelta(days=15), today + timedelta(days=45), "fresh"),
-                (ingredients_map.get("Onions (Red)"), "ONI-01", 40.0, 32.0, 35.0, today - timedelta(days=4), today + timedelta(days=10), "fresh"),
-                (ingredients_map.get("Butter (Unsalted)"), "BUT-01", 12.0, 9.0, 480.0, today - timedelta(days=5), today + timedelta(days=25), "fresh"),
-                (ingredients_map.get("All-Purpose Flour (Maida)"), "MAI-01", 30.0, 28.0, 45.0, today - timedelta(days=8), today + timedelta(days=52), "fresh"),
-                (ingredients_map.get("Black Urad Dal"), "URD-01", 20.0, 15.0, 140.0, today - timedelta(days=12), today + timedelta(days=78), "fresh"),
-                (ingredients_map.get("Paneer (Fresh Cottage Cheese)"), "PAN-02", 10.0, 10.0, 320.0, today, today + timedelta(days=4), "fresh"),
-                (ingredients_map.get("Whole Milk"), "MLK-02", 15.0, 11.0, 62.0, today, today + timedelta(days=3), "fresh"),
-            ]
-            for ing, b_num, init_q, rem_q, cost, rec_d, exp_d, status in batches_seed:
-                if ing:
-                    batch = InventoryBatch(
-                        ingredient_id=ing.id,
-                        batch_number=b_num,
-                        initial_quantity=init_q,
-                        remaining_quantity=rem_q,
-                        unit=ing.unit,
-                        unit_cost=cost,
-                        received_date=rec_d,
-                        expiry_date=exp_d,
-                        supplier_name=ing.preferred_supplier,
-                        status="active"
-                    )
-                    db.session.add(batch)
-            db.session.flush()
-
-            # Ensure every raw ingredient has at least one active batch for FEFO recipe explosions
+            # Seed batches for each ingredient
             for ing in ingredients_map.values():
-                has_batch = InventoryBatch.query.filter_by(ingredient_id=ing.id, status="active").first()
-                if not has_batch and ing.current_stock > 0:
-                    batch = InventoryBatch(
-                        ingredient_id=ing.id,
-                        batch_number=f"{ing.name[:3].upper()}-01",
-                        initial_quantity=ing.current_stock,
-                        remaining_quantity=ing.current_stock,
-                        unit=ing.unit,
-                        unit_cost=ing.unit_cost,
-                        received_date=today - timedelta(days=1),
-                        expiry_date=today + timedelta(days=max(3, ing.shelf_life_days)),
-                        supplier_name=ing.preferred_supplier,
-                        status="active"
-                    )
-                    db.session.add(batch)
+                # Add fresh batch
+                b_fresh = InventoryBatch(
+                    ingredient_id=ing.id,
+                    batch_number=f"{ing.sku[:7]}-B1",
+                    initial_quantity=ing.current_stock,
+                    remaining_quantity=ing.current_stock,
+                    unit=ing.unit,
+                    unit_cost=ing.unit_cost,
+                    received_date=today - timedelta(days=1),
+                    expiry_date=today + timedelta(days=max(3, ing.shelf_life_days)),
+                    supplier_name=ing.preferred_supplier,
+                    status="active"
+                )
+                db.session.add(b_fresh)
+
+            # Add near-expiry batches specifically for Paneer, Milk, and Tomatoes to showcase FEFO alerts
+            paneer_ing = ingredients_map.get("Paneer (Fresh Cottage Cheese)")
+            if paneer_ing:
+                b_near = InventoryBatch(
+                    ingredient_id=paneer_ing.id,
+                    batch_number="PAN-CRIT-01",
+                    initial_quantity=8.0,
+                    remaining_quantity=4.0,
+                    unit=paneer_ing.unit,
+                    unit_cost=paneer_ing.unit_cost,
+                    received_date=today - timedelta(days=3),
+                    expiry_date=today + timedelta(days=1),
+                    supplier_name=paneer_ing.preferred_supplier,
+                    status="active"
+                )
+                db.session.add(b_near)
+
+            milk_ing = ingredients_map.get("Whole Milk")
+            if milk_ing:
+                b_milk = InventoryBatch(
+                    ingredient_id=milk_ing.id,
+                    batch_number="MLK-CRIT-01",
+                    initial_quantity=10.0,
+                    remaining_quantity=5.0,
+                    unit=milk_ing.unit,
+                    unit_cost=milk_ing.unit_cost,
+                    received_date=today - timedelta(days=2),
+                    expiry_date=today + timedelta(days=1),
+                    supplier_name=milk_ing.preferred_supplier,
+                    status="active"
+                )
+                db.session.add(b_milk)
+
             db.session.flush()
 
-        # 5. Menu Items (12 dishes)
+        # 5. Canteen Menu Items (8 requested dishes)
         menu_items_map = {}
         if MenuItem.query.count() == 0:
-            menu_data = [
-                ("Hyderabadi Chicken Dum Biryani", "Biryani", 380.0, 128.0, False, 25, "Layered fragrant basmati rice with marinated chicken, saffron, ghee and fried onions."),
-                ("Paneer Butter Masala", "Mains", 320.0, 104.0, True, 20, "Cottage cheese cubes simmered in a velvety tomato, butter, and cashew nut gravy."),
-                ("Butter Chicken (Murgh Makhani)", "Mains", 420.0, 142.0, False, 25, "Charcoal grilled chicken cooked in a rich, buttery tomato sauce perfumed with fenugreek."),
-                ("Garlic Butter Naan", "Breads", 65.0, 18.0, True, 8, "Traditional tandoor-baked leavened flatbread brushed with garlic butter and fresh coriander."),
-                ("Dal Makhani", "Mains", 280.0, 78.0, True, 20, "Slow-cooked black lentils and kidney beans simmered overnight with butter and fresh cream."),
-                ("Tandoori Chicken (Half)", "Starters", 340.0, 118.0, False, 22, "Spring chicken marinated in spiced yogurt and mustard oil, roasted to smoky perfection."),
-                ("Paneer Tikka Platter", "Starters", 290.0, 92.0, True, 18, "Marinated cottage cheese and bell peppers chargrilled with tandoori spices and mint chutney."),
-                ("Steamed Jeera Basmati Rice", "Mains", 160.0, 42.0, True, 12, "Fluffy long-grain basmati rice tempered with royal cumin seeds and clarified ghee."),
-                ("Gulab Jamun (2 pcs)", "Desserts", 110.0, 32.0, True, 5, "Fried milk dough dumplings soaked in warm rosewater and green cardamom sugar syrup."),
-                ("Mango Lassi (Chilled)", "Beverages", 120.0, 36.0, True, 5, "Thick chilled yogurt beverage blended with sweet Alphonso mango pulp and cardamom."),
-                ("Special Masala Chai", "Beverages", 50.0, 12.0, True, 5, "Brewed Assam CTC tea simmered with fresh milk, crushed ginger, and green cardamom."),
-                ("Burani Garlic Raita", "Mains", 90.0, 24.0, True, 5, "Spiced whisked curd infused with golden fried garlic slices and roasted cumin powder.")
+            canteen_menu = [
+                ("Gujarati Thali", "Thali", 180.0, 58.0, True, 15, "Traditional Gujarati meal with 4 Phulka rotlis, Gujarati dal, Sukhi Bhaji, Basmati rice, and sweet pickle."),
+                ("Paneer Butter Masala", "Mains", 190.0, 68.0, True, 18, "Soft cottage cheese cubes cooked in rich makhani tomato, butter, and cashew gravy."),
+                ("Vegetable Pulao", "Mains", 130.0, 42.0, True, 15, "Fragrant basmati rice gently cooked with green peas, diced carrots, potatoes, and desi ghee."),
+                ("Sandwich", "Snacks", 70.0, 24.0, True, 8, "Classic Mumbai grilled sandwich layered with spiced potatoes, onions, tomatoes, butter, and spicy mint chutney."),
+                ("Dosa", "South Indian", 80.0, 26.0, True, 10, "Crispy golden fermented crepe stuffed with savory spiced potato masala, served with sambar and fresh coconut chutney."),
+                ("Idli", "South Indian", 50.0, 16.0, True, 5, "Two pillowy soft steamed rice-lentil cakes accompanied by piping hot toor dal sambar and coconut chutney."),
+                ("Tea", "Beverages", 20.0, 6.0, True, 5, "Aromatic Indian cutting chai brewed with full-cream milk, crushed ginger, cardamom, and Assam CTC leaves."),
+                ("Coffee", "Beverages", 30.0, 9.0, True, 5, "Traditional South Indian frothy filter coffee decoction whipped with hot steamed milk.")
             ]
-            for name, cat, price, cost, is_veg, prep_time, desc in menu_data:
+            for name, cat, price, cost, is_veg, prep_time, desc in canteen_menu:
                 margin = round(((price - cost) / price) * 100, 1)
                 m = MenuItem(
                     kitchen_id=kitchen.id,
@@ -196,46 +202,67 @@ def seed_database():
         for m in MenuItem.query.all():
             menu_items_map[m.name] = m
 
-        # 6. Recipes (BOM Links)
+        # 6. Recipe BOM Formulas
         if Recipe.query.count() == 0:
-            bom_links = [
-                # Hyderabadi Biryani
-                ("Hyderabadi Chicken Dum Biryani", "Chicken (Boneless)", 0.25, "kg", 5.0),
-                ("Hyderabadi Chicken Dum Biryani", "Basmati Rice (Aged)", 0.20, "kg", 2.0),
-                ("Hyderabadi Chicken Dum Biryani", "Onions (Red)", 0.12, "kg", 8.0),
-                ("Hyderabadi Chicken Dum Biryani", "Pure Desi Ghee", 0.03, "kg", 0.0),
-                ("Hyderabadi Chicken Dum Biryani", "Ginger-Garlic Paste", 0.02, "kg", 0.0),
-                ("Hyderabadi Chicken Dum Biryani", "Biryani Spices Blend", 0.015, "kg", 0.0),
-                ("Hyderabadi Chicken Dum Biryani", "Kashmiri Saffron", 0.1, "g", 0.0),
-                # Paneer Butter Masala
-                ("Paneer Butter Masala", "Paneer (Fresh Cottage Cheese)", 0.18, "kg", 3.0),
-                ("Paneer Butter Masala", "Tomatoes (Ripe)", 0.20, "kg", 5.0),
-                ("Paneer Butter Masala", "Butter (Unsalted)", 0.04, "kg", 0.0),
-                ("Paneer Butter Masala", "Fresh Cooking Cream", 0.03, "l", 0.0),
-                ("Paneer Butter Masala", "Cashew Nuts (Split)", 0.02, "kg", 0.0),
-                ("Paneer Butter Masala", "Garam Masala Blend", 0.01, "kg", 0.0),
-                # Butter Chicken
-                ("Butter Chicken (Murgh Makhani)", "Chicken (Boneless)", 0.22, "kg", 5.0),
-                ("Butter Chicken (Murgh Makhani)", "Tomatoes (Ripe)", 0.22, "kg", 5.0),
-                ("Butter Chicken (Murgh Makhani)", "Butter (Unsalted)", 0.05, "kg", 0.0),
-                ("Butter Chicken (Murgh Makhani)", "Fresh Cooking Cream", 0.04, "l", 0.0),
-                ("Butter Chicken (Murgh Makhani)", "Cashew Nuts (Split)", 0.02, "kg", 0.0),
-                # Garlic Naan
-                ("Garlic Butter Naan", "All-Purpose Flour (Maida)", 0.12, "kg", 3.0),
-                ("Garlic Butter Naan", "Butter (Unsalted)", 0.015, "kg", 0.0),
-                ("Garlic Butter Naan", "Whole Milk", 0.03, "l", 0.0),
-                # Dal Makhani
-                ("Dal Makhani", "Black Urad Dal", 0.10, "kg", 2.0),
-                ("Dal Makhani", "Kashmiri Rajma", 0.02, "kg", 2.0),
-                ("Dal Makhani", "Butter (Unsalted)", 0.04, "kg", 0.0),
-                ("Dal Makhani", "Fresh Cooking Cream", 0.03, "l", 0.0),
-                ("Dal Makhani", "Tomatoes (Ripe)", 0.08, "kg", 5.0),
-                # Gulab Jamun
-                ("Gulab Jamun (2 pcs)", "Mawa / Khoya", 0.06, "kg", 3.0),
-                ("Gulab Jamun (2 pcs)", "Refined Sugar", 0.08, "kg", 0.0),
-                ("Gulab Jamun (2 pcs)", "Green Cardamom", 0.002, "kg", 0.0),
+            canteen_recipes = [
+                # 1. Gujarati Thali
+                ("Gujarati Thali", "Whole Wheat Flour (Atta)", 0.12, "kg", 3.0),
+                ("Gujarati Thali", "Basmati Rice (Aged)", 0.10, "kg", 2.0),
+                ("Gujarati Thali", "Toor Dal (Pigeon Pea)", 0.06, "kg", 2.0),
+                ("Gujarati Thali", "Potatoes (Aloo)", 0.10, "kg", 5.0),
+                ("Gujarati Thali", "Pure Desi Ghee", 0.015, "kg", 0.0),
+                ("Gujarati Thali", "Refined Sunflower Cooking Oil", 0.015, "l", 0.0),
+                ("Gujarati Thali", "Refined Sugar", 0.015, "kg", 0.0),
+                ("Gujarati Thali", "Garam Masala & Curry Spices Blend", 0.01, "kg", 0.0),
+
+                # 2. Paneer Butter Masala
+                ("Paneer Butter Masala", "Paneer (Fresh Cottage Cheese)", 0.16, "kg", 2.0),
+                ("Paneer Butter Masala", "Tomatoes (Ripe)", 0.18, "kg", 4.0),
+                ("Paneer Butter Masala", "Butter (Table Butter)", 0.03, "kg", 0.0),
+                ("Paneer Butter Masala", "Fresh Cooking Cream", 0.025, "l", 0.0),
+                ("Paneer Butter Masala", "Cashew Nuts (Split)", 0.015, "kg", 0.0),
+                ("Paneer Butter Masala", "Garam Masala & Curry Spices Blend", 0.01, "kg", 0.0),
+
+                # 3. Vegetable Pulao
+                ("Vegetable Pulao", "Basmati Rice (Aged)", 0.16, "kg", 2.0),
+                ("Vegetable Pulao", "Mixed Peas & Carrots", 0.06, "kg", 5.0),
+                ("Vegetable Pulao", "Potatoes (Aloo)", 0.05, "kg", 5.0),
+                ("Vegetable Pulao", "Onions (Red)", 0.04, "kg", 5.0),
+                ("Vegetable Pulao", "Pure Desi Ghee", 0.015, "kg", 0.0),
+                ("Vegetable Pulao", "Garam Masala & Curry Spices Blend", 0.008, "kg", 0.0),
+
+                # 4. Sandwich
+                ("Sandwich", "Sandwich Bread (Jumbo Slices)", 2.0, "pcs", 0.0),
+                ("Sandwich", "Butter (Table Butter)", 0.015, "kg", 0.0),
+                ("Sandwich", "Potatoes (Aloo)", 0.05, "kg", 5.0),
+                ("Sandwich", "Tomatoes (Ripe)", 0.03, "kg", 5.0),
+                ("Sandwich", "Onions (Red)", 0.025, "kg", 5.0),
+                ("Sandwich", "Green Mint & Coriander Chutney", 0.015, "kg", 0.0),
+
+                # 5. Dosa
+                ("Dosa", "Dosa & Idli Fermented Batter", 0.18, "kg", 2.0),
+                ("Dosa", "Potatoes (Aloo)", 0.10, "kg", 5.0),
+                ("Dosa", "Onions (Red)", 0.03, "kg", 5.0),
+                ("Dosa", "Refined Sunflower Cooking Oil", 0.015, "l", 0.0),
+                ("Dosa", "Fresh Grated Coconut", 0.03, "kg", 2.0),
+                ("Dosa", "Toor Dal (Pigeon Pea)", 0.025, "kg", 0.0),
+
+                # 6. Idli
+                ("Idli", "Dosa & Idli Fermented Batter", 0.16, "kg", 0.0),
+                ("Idli", "Toor Dal (Pigeon Pea)", 0.03, "kg", 0.0),
+                ("Idli", "Fresh Grated Coconut", 0.03, "kg", 2.0),
+
+                # 7. Tea
+                ("Tea", "Whole Milk", 0.10, "l", 0.0),
+                ("Tea", "Assam CTC Tea Leaves", 0.008, "kg", 0.0),
+                ("Tea", "Refined Sugar", 0.012, "kg", 0.0),
+
+                # 8. Coffee
+                ("Coffee", "Whole Milk", 0.12, "l", 0.0),
+                ("Coffee", "South Indian Filter Coffee Powder", 0.012, "kg", 0.0),
+                ("Coffee", "Refined Sugar", 0.012, "kg", 0.0)
             ]
-            for dish_name, ing_name, q, u, loss in bom_links:
+            for dish_name, ing_name, q, u, loss in canteen_recipes:
                 m_item = menu_items_map.get(dish_name)
                 ing_item = ingredients_map.get(ing_name)
                 if m_item and ing_item:
@@ -254,56 +281,81 @@ def seed_database():
             m.calculate_cost_and_margin()
         db.session.commit()
 
-        # 7. Sales Orders
+        # 7. Historical Sales Records (Synthetic Canteen Data)
         if Sale.query.count() == 0:
-            sales_data = [
-                ("ORD-1041", "Dine-in", "Table 4", "Amit Sharma", "UPI", 1320.0, 66.0, 1386.0, [("Hyderabadi Chicken Dum Biryani", 2), ("Garlic Butter Naan", 4), ("Mango Lassi (Chilled)", 2)]),
-                ("ORD-1042", "Dine-in", "Table 2", "Kavita Reddy", "Card", 700.0, 35.0, 735.0, [("Paneer Butter Masala", 1), ("Garlic Butter Naan", 2), ("Gulab Jamun (2 pcs)", 2)]),
-                ("ORD-1043", "Takeaway", "", "Rohan Deshmukh", "UPI", 940.0, 47.0, 987.0, [("Butter Chicken (Murgh Makhani)", 1), ("Hyderabadi Chicken Dum Biryani", 1), ("Garlic Butter Naan", 2)]),
-                ("ORD-1044", "Online", "", "Swiggy Order #882", "UPI", 420.0, 21.0, 441.0, [("Butter Chicken (Murgh Makhani)", 1)]),
-                ("ORD-1045", "Dine-in", "Table 7", "Naveen Kumar", "Cash", 1120.0, 56.0, 1176.0, [("Tandoori Chicken (Half)", 2), ("Garlic Butter Naan", 4), ("Burani Garlic Raita", 2)]),
-            ]
-            for ord_num, ch, tbl, cust, pay, sub, tax, tot, items in sales_data:
-                s = Sale(
-                    kitchen_id=kitchen.id,
-                    order_number=ord_num,
-                    channel=ch,
-                    table_number=tbl,
-                    customer_name=cust,
-                    payment_method=pay,
-                    status="completed",
-                    subtotal=sub,
-                    tax=tax,
-                    total_amount=tot,
-                    order_timestamp=datetime.utcnow() - timedelta(minutes=15)
-                )
-                db.session.add(s)
-                db.session.flush()
+            channels = ["Dine-in", "Takeaway", "Dine-in", "Takeaway", "Online"]
+            payments = ["UPI", "Cash", "UPI", "Card", "UPI"]
+            sample_customers = ["Ramesh Patel", "Bhavin Shah", "Pooja Mehta", "Kiran Desai", "Aarav Joshi", "Walk-in Guest"]
 
-                for d_name, q in items:
-                    m = menu_items_map.get(d_name)
-                    if m:
+            # Seed realistic canteen orders across past 30 days
+            order_seq = 1001
+            for days_ago in range(30, -1, -1):
+                order_date = today - timedelta(days=days_ago)
+                # Weekdays higher canteen volume, weekend slightly lower
+                daily_volume = random.randint(12, 22) if order_date.weekday() < 5 else random.randint(6, 14)
+
+                for _ in range(daily_volume):
+                    hour = random.choice([8, 9, 10, 12, 13, 14, 16, 17, 19, 20])
+                    minute = random.randint(0, 59)
+                    order_dt = datetime(order_date.year, order_date.month, order_date.day, hour, minute, 0, tzinfo=timezone.utc)
+
+                    # Select 1 to 3 items
+                    num_items = random.choices([1, 2, 3], weights=[0.5, 0.35, 0.15])[0]
+                    chosen_dishes = random.sample(list(menu_items_map.values()), k=num_items)
+
+                    subtotal = 0.0
+                    order_items_to_add = []
+                    for dish in chosen_dishes:
+                        qty = random.choices([1, 2, 3], weights=[0.75, 0.2, 0.05])[0]
+                        line_cost = round(dish.price * qty, 2)
+                        subtotal += line_cost
+                        order_items_to_add.append((dish.id, qty, dish.price, line_cost))
+
+                    tax = round(subtotal * 0.05, 2)
+                    tot = round(subtotal + tax, 2)
+
+                    sale = Sale(
+                        kitchen_id=kitchen.id,
+                        order_number=f"ORD-{order_seq}",
+                        channel=random.choice(channels),
+                        table_number=f"Table {random.randint(1, 12)}" if random.random() > 0.3 else "",
+                        customer_name=random.choice(sample_customers),
+                        payment_method=random.choice(payments),
+                        status="completed",
+                        subtotal=subtotal,
+                        tax=tax,
+                        total_amount=tot,
+                        notes="[SYNTHETIC GENERATED CANTEEN DATA]",
+                        order_timestamp=order_dt
+                    )
+                    db.session.add(sale)
+                    db.session.flush()
+
+                    for m_id, q, u_p, s_t in order_items_to_add:
                         si = SaleItem(
-                            sale_id=s.id,
-                            menu_item_id=m.id,
+                            sale_id=sale.id,
+                            menu_item_id=m_id,
                             quantity=q,
-                            unit_price=m.price,
-                            subtotal=round(m.price * q, 2)
+                            unit_price=u_p,
+                            subtotal=s_t
                         )
                         db.session.add(si)
+
+                    order_seq += 1
+
             db.session.flush()
 
-        # 8. Food Waste Records
+        # 8. Food Waste Records (Synthetic Canteen Waste)
         if WasteRecord.query.count() == 0:
-            waste_seed = [
-                ("WST-01", "Tomatoes (Ripe)", 3.5, "kg", 140.0, "Spoilage", "Soft spots from bottom crate moisture"),
-                ("WST-02", "Paneer (Fresh Cottage Cheese)", 1.2, "kg", 384.0, "Prep Trimming Loss", "Irregular edges trimmed during starter skewering"),
-                ("WST-03", "Chicken (Boneless)", 2.0, "kg", 480.0, "Storage Glitch", "Chiller temperature fluctuation on shelf 2"),
-                ("WST-04", "Onions (Red)", 4.0, "kg", 140.0, "Prep Trimming Loss", "Outer skin and root peeling trim"),
-                ("WST-05", "Whole Milk", 3.0, "l", 186.0, "Spoilage", "Soured due to delayed cold-room loading"),
-                ("WST-06", "All-Purpose Flour (Maida)", 1.5, "kg", 67.5, "Overproduction", "Unused dough portion past proofing window"),
+            canteen_waste_seed = [
+                ("WST-01", "Tomatoes (Ripe)", 3.0, "kg", 114.0, "Spoilage", "Soft spots from delivery crate [SYNTHETIC GENERATED]"),
+                ("WST-02", "Paneer (Fresh Cottage Cheese)", 1.5, "kg", 480.0, "Prep Trimming Loss", "Corner trims during block portioning [SYNTHETIC GENERATED]"),
+                ("WST-03", "Whole Milk", 2.5, "l", 150.0, "Spoilage", "Over-simmered milk batch [SYNTHETIC GENERATED]"),
+                ("WST-04", "Sandwich Bread (Jumbo Slices)", 6.0, "pcs", 21.0, "Overproduction", "End crusts not suitable for sandwiches [SYNTHETIC GENERATED]"),
+                ("WST-05", "Dosa & Idli Fermented Batter", 2.0, "kg", 110.0, "Overproduction", "Over-fermented end-of-day excess [SYNTHETIC GENERATED]"),
+                ("WST-06", "Potatoes (Aloo)", 2.5, "kg", 70.0, "Prep Trimming Loss", "Peel and blemish trimming [SYNTHETIC GENERATED]")
             ]
-            for w_num, ing_name, q, u, loss, r, n in waste_seed:
+            for w_num, ing_name, q, u, loss, r, n in canteen_waste_seed:
                 ing = ingredients_map.get(ing_name)
                 if ing:
                     w = WasteRecord(
@@ -316,7 +368,7 @@ def seed_database():
                         reason=r,
                         logged_by="Chef Vikram",
                         notes=n,
-                        logged_at=datetime.utcnow() - timedelta(hours=3)
+                        logged_at=datetime.now(timezone.utc) - timedelta(hours=4)
                     )
                     db.session.add(w)
             db.session.flush()
@@ -331,16 +383,17 @@ def seed_database():
                 lead_time="12 hours",
                 order_date=today,
                 delivery_due_date=today + timedelta(days=1),
-                total_estimated_cost=6350.0,
+                total_estimated_cost=6700.0,
                 status="draft",
-                notes="Weekend stock buffer for Paneer, Butter and Milk."
+                notes="Weekly dairy requirements for Paneer, Butter, and Milk [SYNTHETIC GENERATED]"
             )
             db.session.add(po1)
             db.session.flush()
 
             po1_items = [
-                (ingredients_map.get("Paneer (Fresh Cottage Cheese)"), 22.0, 14.5, 15.0, 15.0, "kg", 320.0, 4800.0),
-                (ingredients_map.get("Whole Milk"), 35.0, 16.0, 25.0, 25.0, "l", 62.0, 1550.0)
+                (ingredients_map.get("Paneer (Fresh Cottage Cheese)"), 25.0, 20.0, 15.0, 15.0, "kg", 320.0, 4800.0),
+                (ingredients_map.get("Whole Milk"), 40.0, 25.0, 25.0, 25.0, "l", 60.0, 1500.0),
+                (ingredients_map.get("Butter (Table Butter)"), 15.0, 10.0, 5.0, 5.0, "kg", 480.0, 400.0)
             ]
             for ing, f_dem, c_stk, rec_q, app_q, u, cost, sub in po1_items:
                 if ing:
@@ -365,17 +418,17 @@ def seed_database():
                 lead_time="8 hours",
                 order_date=today,
                 delivery_due_date=today + timedelta(days=1),
-                total_estimated_cost=2250.0,
+                total_estimated_cost=2280.0,
                 status="approved",
-                notes="Fresh delivery for Tomatoes, Onions and Coriander."
+                notes="Fresh delivery for Tomatoes, Potatoes and Onions [SYNTHETIC GENERATED]"
             )
             db.session.add(po2)
             db.session.flush()
 
             po2_items = [
-                (ingredients_map.get("Tomatoes (Ripe)"), 30.0, 18.0, 20.0, 20.0, "kg", 40.0, 800.0),
-                (ingredients_map.get("Onions (Red)"), 50.0, 32.0, 25.0, 25.0, "kg", 35.0, 875.0),
-                (ingredients_map.get("Fresh Coriander Leaves"), 8.0, 2.2, 5.0, 5.0, "kg", 60.0, 300.0)
+                (ingredients_map.get("Potatoes (Aloo)"), 40.0, 25.0, 25.0, 25.0, "kg", 28.0, 700.0),
+                (ingredients_map.get("Tomatoes (Ripe)"), 25.0, 15.0, 20.0, 20.0, "kg", 38.0, 760.0),
+                (ingredients_map.get("Onions (Red)"), 35.0, 20.0, 25.0, 25.0, "kg", 32.0, 800.0)
             ]
             for ing, f_dem, c_stk, rec_q, app_q, u, cost, sub in po2_items:
                 if ing:
@@ -392,44 +445,29 @@ def seed_database():
                     )
                     db.session.add(pi)
 
-        # 10. AI Forecasts (Past 7 days + Next 14 days)
+        # 10. AI Forecasts for Indian Canteen Dishes
         if Forecast.query.count() == 0:
-            first_menu_item = MenuItem.query.first()
-            if first_menu_item:
+            for dish in menu_items_map.values():
+                base_canteen_demand = 45 if "Thali" in dish.name else 35 if "Dosa" in dish.name or "Idli" in dish.name else 60 if "Tea" in dish.name else 25
                 for offset in range(-7, 15):
                     f_date = today + timedelta(days=offset)
-                    base_qty = 130 + (25 if f_date.weekday() in (4, 5, 6) else 0)
+                    multiplier = 1.25 if f_date.weekday() in (4, 5) else 1.0
+                    pred = round(base_canteen_demand * multiplier, 1)
                     fc = Forecast(
                         kitchen_id=kitchen.id,
-                        menu_item_id=first_menu_item.id,
+                        menu_item_id=dish.id,
                         forecast_date=f_date,
-                        predicted_quantity=float(base_qty),
-                        actual_quantity=float(base_qty + 4) if offset <= 0 else None,
-                        confidence_lower=float(base_qty - 10),
-                        confidence_upper=float(base_qty + 12),
-                        baseline_quantity=float(base_qty - 5),
-                        factors_json='{"holiday_multiplier": 1.0, "weekend": true}' if f_date.weekday() in (4, 5, 6) else '{"holiday_multiplier": 1.0}'
+                        predicted_quantity=float(pred),
+                        actual_quantity=float(pred + random.randint(-2, 4)) if offset <= 0 else None,
+                        confidence_lower=float(max(10, pred - 6)),
+                        confidence_upper=float(pred + 8),
+                        baseline_quantity=float(base_canteen_demand),
+                        factors_json='{"canteen_peak": "lunch", "synthetic": true}'
                     )
                     db.session.add(fc)
 
-        # 11. Stock Movement Seed Log
-        if StockMovement.query.count() == 0:
-            for ing in Ingredient.query.limit(5).all():
-                m = StockMovement(
-                    ingredient_id=ing.id,
-                    movement_type="purchase",
-                    quantity=ing.current_stock,
-                    unit=ing.unit,
-                    unit_cost=ing.unit_cost,
-                    reference_id=f"INITIAL-{ing.sku}",
-                    reference_type="initial_inventory",
-                    notes="Initial system inventory setup",
-                    created_at=datetime.utcnow() - timedelta(days=1)
-                )
-                db.session.add(m)
-
         db.session.commit()
-        print("[+] Database successfully seeded with production-grade sample data across all 12 modules!")
+        print(f"[+] Database successfully seeded with 8 Indian Canteen dishes, BOM recipes, and {Sale.query.count()} historical synthetic sales records!")
 
 if __name__ == "__main__":
     seed_database()

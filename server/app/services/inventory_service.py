@@ -243,3 +243,4 @@ def record_waste_deduction(
     db.session.add(movement)
 
     return base_qty, financial_loss
+

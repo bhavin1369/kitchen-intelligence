@@ -47,3 +47,4 @@ def inventory_summary():
             "nearExpiryBatches": [b.to_dict() for b in batches]
         }
     }), 200
+

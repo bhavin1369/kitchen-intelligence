@@ -257,3 +257,4 @@ def get_movements():
         "total": len(movements),
         "data": [m.to_dict() for m in movements]
     }), 200
+

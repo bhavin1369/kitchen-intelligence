@@ -72,3 +72,4 @@ class Forecast(db.Model):
             "factors": self.factors_json,
             "createdAt": self.created_at.isoformat() if self.created_at else None
         }
+

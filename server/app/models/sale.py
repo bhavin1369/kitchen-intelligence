@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app.extensions import db
 
 class Sale(db.Model):
@@ -15,9 +15,10 @@ class Sale(db.Model):
     subtotal = db.Column(db.Float, default=0.0, nullable=False)
     tax = db.Column(db.Float, default=0.0, nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
-    order_timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    notes = db.Column(db.Text, nullable=True)
+    order_timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     created_by = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Relationships
     items = db.relationship("SaleItem", backref="sale", cascade="all, delete-orphan", lazy="joined")
@@ -37,6 +38,7 @@ class Sale(db.Model):
             "subtotal": self.subtotal,
             "tax": self.tax,
             "totalAmount": self.total_amount,
+            "notes": self.notes or "",
             "items": [it.to_dict() for it in self.items],
             "createdAt": self.created_at.isoformat() if self.created_at else None
         }

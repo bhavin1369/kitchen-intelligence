@@ -36,3 +36,4 @@ class Recipe(db.Model):
             "currentStock": ing.current_stock if ing else 0.0,
             "createdAt": self.created_at.isoformat() if self.created_at else None
         }
+
