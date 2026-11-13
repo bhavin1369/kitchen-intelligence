@@ -99,14 +99,24 @@ export const Sidebar = ({ isOpen, onClose }) => {
                   }`
                 }
               >
-                <div className="flex items-center space-x-2.5">
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-stone-400 group-hover:text-stone-600 dark:text-stone-400"}`} />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge && (
-                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                    {item.badge}
-                  </span>
+                {({ isActive }) => (
+                  <>
+                    <div className="flex items-center space-x-2.5">
+                      <Icon
+                        className={`w-4 h-4 shrink-0 ${
+                          isActive
+                            ? "text-white"
+                            : "text-stone-400 dark:text-stone-400"
+                        }`}
+                      />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                        {item.badge}
+                      </span>
+                    )}
+                  </>
                 )}
               </NavLink>
             )

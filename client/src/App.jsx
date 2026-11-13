@@ -20,6 +20,53 @@ import { ActionPlanPage } from "./pages/ActionPlanPage"
 import { EnvironmentalImpactPage } from "./pages/EnvironmentalImpactPage"
 import { LoginPage } from "./pages/LoginPage"
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex items-center justify-center p-6 text-stone-900 dark:text-stone-100">
+          <div className="max-w-md w-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg p-6 shadow-xl text-center space-y-4">
+            <div className="w-12 h-12 mx-auto rounded-full bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold text-lg">
+              !
+            </div>
+            <div>
+              <h2 className="text-base font-bold">Something went wrong</h2>
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+                An unexpected UI error occurred while rendering the kitchen workspace.
+              </p>
+            </div>
+            {this.state.error && (
+              <pre className="p-3 rounded-md bg-stone-100 dark:bg-stone-800 text-[11px] font-mono text-left text-rose-700 dark:text-rose-300 overflow-x-auto max-h-32">
+                {this.state.error.message || String(this.state.error)}
+              </pre>
+            )}
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 rounded-md bg-forest-900 hover:bg-forest-800 text-white text-xs font-medium cursor-pointer"
+            >
+              Reload Application
+            </button>
+          </div>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth()
 
@@ -41,9 +88,10 @@ const ProtectedRoute = ({ children }) => {
 
 export function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <BrowserRouter>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
 
@@ -105,6 +153,7 @@ export function App() {
       </BrowserRouter>
     </AuthProvider>
     </ThemeProvider>
+    </ErrorBoundary>
   )
 }
 
