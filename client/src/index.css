@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-warm-50 text-slate-800 antialiased font-sans min-h-screen selection:bg-forest-100 selection:text-forest-900;
+    @apply bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased font-sans min-h-screen selection:bg-forest-100 selection:text-forest-900;
   }
 }
 
@@ -14,14 +14,20 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f7f5f0;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #dcd6c7;
+  background: #d6d3d1;
   border-radius: 9999px;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: #44403c;
+}
 ::-webkit-scrollbar-thumb:hover {
-  background: #bab09c;
+  background: #a8a29e;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #57534e;
 }
 
 /* Print styling */

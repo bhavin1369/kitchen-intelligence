@@ -22,8 +22,11 @@ import {
   FileText
 } from "lucide-react"
 import { inventoryService } from "../services/api"
+import { useSearchParams } from "react-router-dom"
 
 export const InventoryPage = () => {
+  const [searchParams] = useSearchParams()
+
   // State
   const [items, setItems] = useState([])
   const [batches, setBatches] = useState([])
@@ -40,7 +43,12 @@ export const InventoryPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("inventory") // 'inventory', 'batches', 'movements'
+  const [activeTab, setActiveTab] = useState(() => {
+    const tabParam = searchParams.get("tab")
+    return tabParam && ["inventory", "batches", "movements"].includes(tabParam)
+      ? tabParam
+      : "inventory"
+  })
 
   // Modals
   const [selectedIngredientForBatches, setSelectedIngredientForBatches] = useState(null)

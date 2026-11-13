@@ -1,12 +1,34 @@
 import React, { useState } from "react"
-import { Bell, Menu, ChevronRight } from "lucide-react"
+import { Bell, Menu, ChevronRight, Sun, Moon, User, LogOut, Check, ChefHat } from "lucide-react"
 import { useAuth } from "../../context/AuthContext"
+import { useTheme } from "../../context/ThemeContext"
 import { importantAlerts } from "../../data/mockData"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
+
+const PAGE_TITLES = {
+  "/": "Dashboard",
+  "/daily-plan": "Daily Action Plan",
+  "/sales": "Sales Management",
+  "/menu": "Menu & Recipes",
+  "/recipes": "Recipe BOM",
+  "/forecast": "Demand Forecast",
+  "/inventory": "Inventory Management",
+  "/purchase-planner": "Purchase Planning",
+  "/waste": "Waste Management",
+  "/ai-recipes": "Leftover Suggestions",
+  "/environmental": "Environmental Impact",
+  "/analytics": "Executive Reports",
+  "/settings": "System Settings"
+}
 
 export const Navbar = ({ onToggleSidebar }) => {
-  const { user } = useAuth()
+  const { user, logout, switchRole } = useAuth()
+  const { theme, toggleTheme, isDark } = useTheme()
+  const location = useLocation()
   const [showAlertsDropdown, setShowAlertsDropdown] = useState(false)
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false)
+
+  const currentPageTitle = PAGE_TITLES[location.pathname] || "Dashboard"
 
   const todayFormatted = new Intl.DateTimeFormat("en-IN", {
     weekday: "short",
@@ -16,47 +38,54 @@ export const Navbar = ({ onToggleSidebar }) => {
   }).format(new Date())
 
   return (
-    <header className="h-14 border-b border-stone-200 bg-white px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 font-sans">
-      <div className="flex items-center space-x-3 sm:space-x-4">
+    <header className="h-14 border-b border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 font-sans transition-colors duration-150">
+      <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
         {/* Mobile Hamburger */}
         <button
           onClick={onToggleSidebar}
-          className="lg:hidden p-1.5 rounded-md text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition cursor-pointer"
+          className="lg:hidden p-1.5 rounded-md text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
           aria-label="Toggle navigation"
         >
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Location / Kitchen Title */}
-        <div className="flex items-center space-x-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block" />
-          <h2 className="text-sm font-semibold text-stone-900 tracking-tight">
-            SpiceCraft Kitchen & Dining
-          </h2>
-          <span className="hidden md:inline-block text-xs text-stone-400">/</span>
-          <span className="hidden md:inline-block text-xs text-stone-500 font-normal">
-            Terminal #1
-          </span>
+        {/* Current Page Title & Location Breadcrumb */}
+        <div className="flex items-center space-x-2.5 truncate">
+          <div className="hidden sm:flex items-center space-x-1.5 text-stone-400 dark:text-stone-500 text-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block" />
+            <span className="font-medium text-stone-700 dark:text-stone-300">SpiceCraft</span>
+            <span>/</span>
+          </div>
+          <h1 className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 tracking-tight truncate">
+            {currentPageTitle}
+          </h1>
         </div>
       </div>
 
-      <div className="flex items-center space-x-3">
-        {/* Operational Shift Date */}
-        <div className="hidden md:flex items-center text-xs text-stone-500 font-medium">
+      <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+        {/* Shift Date */}
+        <div className="hidden md:flex items-center text-xs text-stone-500 dark:text-stone-400 font-medium">
           <span>{todayFormatted}</span>
         </div>
 
-        {/* Engine Status */}
-        <div className="hidden sm:flex items-center space-x-1.5 text-xs text-stone-600 bg-stone-50 border border-stone-200 px-2.5 py-1 rounded-md">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-          <span className="font-medium text-stone-700">AI Engine Online</span>
-        </div>
+        {/* Theme Switcher Button */}
+        <button
+          onClick={toggleTheme}
+          className="p-1.5 rounded-md text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200 dark:border-stone-700 transition cursor-pointer"
+          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          aria-label="Toggle Dark and Light Mode"
+        >
+          {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-stone-600" />}
+        </button>
 
         {/* Alerts Notification Bell */}
         <div className="relative">
           <button
-            onClick={() => setShowAlertsDropdown(!showAlertsDropdown)}
-            className="relative p-1.5 rounded-md hover:bg-stone-100 border border-stone-200 text-stone-600 hover:text-stone-900 transition cursor-pointer"
+            onClick={() => {
+              setShowAlertsDropdown(!showAlertsDropdown)
+              setShowProfileDropdown(false)
+            }}
+            className="relative p-1.5 rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition cursor-pointer"
             title="Operational Alerts"
           >
             <Bell className="w-4 h-4" />
@@ -66,17 +95,17 @@ export const Navbar = ({ onToggleSidebar }) => {
           </button>
 
           {showAlertsDropdown && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-stone-200 rounded-lg shadow-lg p-3 z-50 text-stone-800">
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone-100">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg shadow-xl p-3 z-50 text-stone-800 dark:text-stone-200">
+              <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone-100 dark:border-stone-800">
                 <div className="flex items-center space-x-2">
-                  <span className="font-semibold text-xs text-stone-900">Operational Alerts</span>
-                  <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-200">
+                  <span className="font-semibold text-xs text-stone-900 dark:text-stone-100">Operational Alerts</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900">
                     {importantAlerts.length}
                   </span>
                 </div>
                 <button
                   onClick={() => setShowAlertsDropdown(false)}
-                  className="text-xs text-stone-500 hover:text-stone-800 cursor-pointer"
+                  className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 cursor-pointer"
                 >
                   Close
                 </button>
@@ -88,18 +117,18 @@ export const Navbar = ({ onToggleSidebar }) => {
                     key={alt.id}
                     className={`p-2.5 rounded-md text-xs border ${
                       alt.level === "critical"
-                        ? "bg-rose-50/50 border-rose-200 text-rose-950"
+                        ? "bg-rose-50/60 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-950 dark:text-rose-200"
                         : alt.level === "warning"
-                        ? "bg-amber-50/50 border-amber-200 text-amber-950"
-                        : "bg-stone-50 border-stone-200 text-stone-900"
+                        ? "bg-amber-50/60 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900 text-amber-950 dark:text-amber-200"
+                        : "bg-stone-50 dark:bg-stone-800/60 border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-200"
                     }`}
                   >
                     <div className="font-semibold">{alt.title}</div>
-                    <div className="text-[11px] text-stone-600 mt-0.5">{alt.message}</div>
+                    <div className="text-[11px] text-stone-600 dark:text-stone-400 mt-0.5">{alt.message}</div>
                     <Link
                       to={alt.link}
                       onClick={() => setShowAlertsDropdown(false)}
-                      className="inline-flex items-center space-x-1 mt-1.5 text-[11px] font-medium text-forest-900 hover:underline"
+                      className="inline-flex items-center space-x-1 mt-1.5 text-[11px] font-medium text-forest-700 dark:text-emerald-400 hover:underline"
                     >
                       <span>{alt.action}</span>
                       <ChevronRight className="w-3 h-3" />
@@ -111,16 +140,56 @@ export const Navbar = ({ onToggleSidebar }) => {
           )}
         </div>
 
-        {/* Current User Pill */}
+        {/* User Profile Menu */}
         {user && (
-          <div className="flex items-center space-x-2 pl-2 border-l border-stone-200">
-            <div className="w-7 h-7 rounded-md bg-stone-900 text-stone-100 font-semibold text-xs flex items-center justify-center">
-              {user.fullName ? user.fullName[0].toUpperCase() : "V"}
-            </div>
-            <div className="hidden sm:block text-left text-xs leading-tight">
-              <div className="font-medium text-stone-900">{user.fullName}</div>
-              <div className="text-[10px] text-stone-500">{user.role}</div>
-            </div>
+          <div className="relative pl-1 sm:pl-2 border-l border-stone-200 dark:border-stone-800">
+            <button
+              onClick={() => {
+                setShowProfileDropdown(!showProfileDropdown)
+                setShowAlertsDropdown(false)
+              }}
+              className="flex items-center space-x-2 p-1 rounded-md hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
+            >
+              <div className="w-7 h-7 rounded-md bg-stone-900 dark:bg-stone-100 text-stone-100 dark:text-stone-900 font-semibold text-xs flex items-center justify-center">
+                {user.fullName ? user.fullName[0].toUpperCase() : "V"}
+              </div>
+              <div className="hidden sm:block text-left text-xs leading-tight">
+                <div className="font-medium text-stone-900 dark:text-stone-100 truncate max-w-[120px]">{user.fullName}</div>
+                <div className="text-[10px] text-stone-500 dark:text-stone-400">{user.role}</div>
+              </div>
+            </button>
+
+            {showProfileDropdown && (
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg shadow-xl p-2 z-50 text-xs">
+                <div className="p-2 border-b border-stone-100 dark:border-stone-800 mb-1">
+                  <div className="font-semibold text-stone-900 dark:text-stone-100">{user.fullName}</div>
+                  <div className="text-stone-500 dark:text-stone-400 text-[11px] truncate">{user.email || user.username}</div>
+                  <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">
+                    Role: {user.role}
+                  </span>
+                </div>
+
+                <div className="py-1">
+                  <Link
+                    to="/settings"
+                    onClick={() => setShowProfileDropdown(false)}
+                    className="flex items-center space-x-2 px-2.5 py-1.5 rounded-md text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+                  >
+                    <span>Kitchen Settings</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setShowProfileDropdown(false)
+                      logout()
+                    }}
+                    className="w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-md text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

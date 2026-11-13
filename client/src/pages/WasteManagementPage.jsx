@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import {
   Trash2,
   AlertTriangle,
@@ -52,9 +52,15 @@ const REASON_COLORS = {
 
 export const WasteManagementPage = () => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   // Tab State
-  const [activeTab, setActiveTab] = useState("logs") // 'logs' | 'analytics' | 'expiry' | 'risk'
+  const [activeTab, setActiveTab] = useState(() => {
+    const tabParam = searchParams.get("tab")
+    return tabParam && ["logs", "analytics", "expiry", "risk"].includes(tabParam)
+      ? tabParam
+      : "logs"
+  }) // 'logs' | 'analytics' | 'expiry' | 'risk'
 
   // Loading & Feedback
   const [loading, setLoading] = useState(true)
