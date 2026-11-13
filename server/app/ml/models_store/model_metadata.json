@@ -1,103 +1,103 @@
 {
-  "version": "v1.87441",
+  "version": "v1.88156",
   "algorithm": "Random Forest Regressor (with Indian Calendar & Lag Dynamics)",
   "comparisonAlgorithm": "Gradient Boosting Regressor",
   "baselineAlgorithm": "Historical Day-of-Week Moving Average",
-  "trainedAt": "2026-11-13T16:30:41.325138+00:00",
-  "trainingDurationSeconds": 0.87,
+  "trainedAt": "2026-11-13T16:42:36.529142+00:00",
+  "trainingDurationSeconds": 0.94,
   "dataset": {
-    "totalSamples": 558,
-    "trainSamples": 432,
-    "testSamples": 126,
+    "totalSamples": 651,
+    "trainSamples": 504,
+    "testSamples": 147,
     "minDate": "2026-10-14",
     "maxDate": "2026-11-13",
     "distinctDatesCount": 31,
-    "dishesCount": 18,
+    "dishesCount": 21,
     "splitCutoff": "2026-11-07"
   },
   "evaluation": {
     "primaryModel": "Random Forest",
     "randomForest": {
-      "mae": 2.086,
-      "rmse": 4.295,
-      "r2": 0.7384,
-      "mape": 59.5
+      "mae": 1.898,
+      "rmse": 4.338,
+      "r2": 0.7299,
+      "mape": 50.61
     },
     "gradientBoosting": {
-      "mae": 2.314,
-      "rmse": 4.384,
-      "r2": 0.7274,
-      "mape": 64.18
+      "mae": 2.184,
+      "rmse": 4.292,
+      "r2": 0.7356,
+      "mape": 55.58
     },
     "baseline": {
-      "mae": 7.776,
-      "rmse": 9.727,
-      "r2": -0.3418,
-      "mape": 78.17
+      "mae": 8.577,
+      "rmse": 10.406,
+      "r2": -0.5547,
+      "mape": 76.19
     },
-    "pctImprovementOverBaseline": 73.2,
+    "pctImprovementOverBaseline": 77.9,
     "status": "superior"
   },
   "featureImportances": [
     {
       "feature": "lag_1",
-      "importance": 0.7337
+      "importance": 0.759
     },
     {
       "feature": "days_to_nearest_festival",
-      "importance": 0.0986
+      "importance": 0.1032
     },
     {
       "feature": "menu_item_id",
-      "importance": 0.0511
+      "importance": 0.0469
     },
     {
       "feature": "rolling_mean_14",
-      "importance": 0.0331
+      "importance": 0.0318
     },
     {
       "feature": "rolling_mean_7",
-      "importance": 0.0241
+      "importance": 0.0208
     },
     {
       "feature": "lag_7",
-      "importance": 0.0164
+      "importance": 0.0124
     },
     {
       "feature": "rolling_std_7",
-      "importance": 0.0148
-    },
-    {
-      "feature": "day_of_week",
       "importance": 0.0057
     },
     {
-      "feature": "is_weekend",
-      "importance": 0.0056
-    },
-    {
-      "feature": "price",
+      "feature": "day_of_week",
       "importance": 0.0046
     },
     {
+      "feature": "is_weekend",
+      "importance": 0.0042
+    },
+    {
       "feature": "day_of_month",
-      "importance": 0.0041
+      "importance": 0.0031
+    },
+    {
+      "feature": "price",
+      "importance": 0.0027
     },
     {
       "feature": "lag_2",
-      "importance": 0.0032
-    },
-    {
-      "feature": "prep_time_minutes",
-      "importance": 0.0024
+      "importance": 0.0026
     },
     {
       "feature": "day_of_year",
-      "importance": 0.0021
+      "importance": 0.0014
+    },
+    {
+      "feature": "prep_time_minutes",
+      "importance": 0.0011
     },
     {
       "feature": "is_indian_festival",
-      "importance": 0.0005
+      "importance": 0.0004
     },
     {
       "feature": "month",
@@ -121,26 +121,26 @@
       "menuItemId": 1,
       "dishName": "Gujarati Thali",
       "testSamples": 7,
-      "mae": 3.92,
-      "rmse": 4.78,
+      "mae": 3.84,
+      "rmse": 4.71,
       "avgActual": 5.0,
-      "avgPredicted": 5.1
+      "avgPredicted": 5.2
     },
     {
       "menuItemId": 2,
       "dishName": "Paneer Butter Masala",
       "testSamples": 7,
-      "mae": 2.44,
-      "rmse": 2.87,
+      "mae": 2.4,
+      "rmse": 2.82,
       "avgActual": 2.4,
-      "avgPredicted": 4.8
+      "avgPredicted": 4.7
     },
     {
       "menuItemId": 3,
       "dishName": "Vegetable Pulao",
       "testSamples": 7,
-      "mae": 1.22,
-      "rmse": 1.8,
+      "mae": 1.29,
+      "rmse": 1.92,
       "avgActual": 3.9,
       "avgPredicted": 4.7
     },
@@ -148,26 +148,26 @@
       "menuItemId": 4,
       "dishName": "Sandwich",
       "testSamples": 7,
-      "mae": 3.21,
-      "rmse": 4.54,
-      "avgActual": 6.6,
+      "mae": 4.1,
+      "rmse": 6.35,
+      "avgActual": 7.3,
       "avgPredicted": 4.4
     },
     {
       "menuItemId": 5,
       "dishName": "Dosa",
       "testSamples": 7,
-      "mae": 6.02,
-      "rmse": 8.82,
-      "avgActual": 6.0,
+      "mae": 6.4,
+      "rmse": 9.5,
+      "avgActual": 6.4,
       "avgPredicted": 7.1
     },
     {
       "menuItemId": 6,
       "dishName": "Idli",
       "testSamples": 7,
-      "mae": 1.89,
-      "rmse": 2.12,
+      "mae": 1.83,
+      "rmse": 2.08,
       "avgActual": 3.0,
       "avgPredicted": 4.4
     },
@@ -175,19 +175,19 @@
       "menuItemId": 7,
       "dishName": "Tea",
       "testSamples": 7,
-      "mae": 4.87,
-      "rmse": 7.28,
-      "avgActual": 8.4,
-      "avgPredicted": 7.2
+      "mae": 5.13,
+      "rmse": 8.4,
+      "avgActual": 9.6,
+      "avgPredicted": 7.0
     },
     {
       "menuItemId": 8,
       "dishName": "Coffee",
       "testSamples": 7,
-      "mae": 2.08,
-      "rmse": 2.48,
+      "mae": 2.02,
+      "rmse": 2.42,
       "avgActual": 4.1,
-      "avgPredicted": 4.9
+      "avgPredicted": 4.8
     },
     {
       "menuItemId": 9,
@@ -202,133 +202,160 @@
       "menuItemId": 22,
       "dishName": "Paneer Kathi Roll 1794586744",
       "testSamples": 7,
-      "mae": 2.99,
-      "rmse": 7.49,
+      "mae": 2.86,
+      "rmse": 7.56,
       "avgActual": 17.1,
-      "avgPredicted": 19.8
+      "avgPredicted": 20.0
     },
     {
       "menuItemId": 23,
       "dishName": "Paneer Kathi Roll 1794586860",
       "testSamples": 7,
-      "mae": 2.99,
-      "rmse": 7.49,
+      "mae": 2.86,
+      "rmse": 7.56,
       "avgActual": 17.1,
-      "avgPredicted": 19.8
+      "avgPredicted": 20.0
     },
     {
       "menuItemId": 24,
       "dishName": "Paneer Kathi Roll 1794586921",
       "testSamples": 7,
-      "mae": 0.85,
-      "rmse": 1.83,
+      "mae": 0.71,
+      "rmse": 1.89,
       "avgActual": 19.3,
-      "avgPredicted": 19.8
+      "avgPredicted": 20.0
     },
     {
       "menuItemId": 25,
       "dishName": "Paneer Kathi Roll 1794586991",
       "testSamples": 7,
-      "mae": 0.85,
-      "rmse": 1.83,
+      "mae": 0.71,
+      "rmse": 1.89,
       "avgActual": 19.3,
-      "avgPredicted": 19.8
+      "avgPredicted": 20.0
     },
     {
       "menuItemId": 26,
       "dishName": "Paneer Kathi Roll 1794587039",
       "testSamples": 7,
-      "mae": 0.85,
-      "rmse": 1.83,
+      "mae": 0.71,
+      "rmse": 1.89,
       "avgActual": 19.3,
-      "avgPredicted": 19.8
+      "avgPredicted": 20.0
     },
     {
       "menuItemId": 27,
       "dishName": "Paneer Kathi Roll 1794587082",
       "testSamples": 7,
-      "mae": 0.85,
-      "rmse": 1.83,
+      "mae": 0.71,
+      "rmse": 1.89,
       "avgActual": 19.3,
-      "avgPredicted": 19.8
+      "avgPredicted": 20.0
     },
     {
       "menuItemId": 28,
       "dishName": "Paneer Kathi Roll 1794587159",
       "testSamples": 7,
-      "mae": 0.85,
-      "rmse": 1.83,
+      "mae": 0.71,
+      "rmse": 1.89,
       "avgActual": 19.3,
-      "avgPredicted": 19.8
+      "avgPredicted": 20.0
     },
     {
       "menuItemId": 30,
       "dishName": "Paneer Kathi Roll 1794587193",
       "testSamples": 7,
-      "mae": 0.85,
-      "rmse": 1.83,
+      "mae": 0.71,
+      "rmse": 1.89,
       "avgActual": 19.3,
-      "avgPredicted": 19.8
+      "avgPredicted": 20.0
     },
     {
       "menuItemId": 32,
       "dishName": "Paneer Kathi Roll 1794587250",
       "testSamples": 7,
-      "mae": 0.85,
-      "rmse": 1.83,
+      "mae": 0.71,
+      "rmse": 1.89,
       "avgActual": 19.3,
-      "avgPredicted": 19.8
+      "avgPredicted": 20.0
+    },
+    {
+      "menuItemId": 34,
+      "dishName": "Paneer Kathi Roll 1794587457",
+      "testSamples": 7,
+      "mae": 0.71,
+      "rmse": 1.89,
+      "avgActual": 19.3,
+      "avgPredicted": 20.0
+    },
+    {
+      "menuItemId": 36,
+      "dishName": "Paneer Kathi Roll 1794587628",
+      "testSamples": 7,
+      "mae": 0.71,
+      "rmse": 1.89,
+      "avgActual": 19.3,
+      "avgPredicted": 20.0
+    },
+    {
+      "menuItemId": 38,
+      "dishName": "Paneer Kathi Roll 1794587966",
+      "testSamples": 7,
+      "mae": 0.71,
+      "rmse": 1.89,
+      "avgActual": 19.3,
+      "avgPredicted": 20.0
     }
   ],
   "comparisonPoints": [
     {
       "date": "2026-11-07",
-      "actual": 193.0,
-      "predicted": 196.6,
-      "baseline": 76.7,
-      "error": 3.6
+      "actual": 253.0,
+      "predicted": 258.7,
+      "baseline": 96.8,
+      "error": 5.7
     },
     {
       "date": "2026-11-08",
-      "actual": 192.0,
-      "predicted": 202.8,
-      "baseline": 86.0,
-      "error": 10.8
+      "actual": 252.0,
+      "predicted": 265.5,
+      "baseline": 106.1,
+      "error": 13.5
     },
     {
       "date": "2026-11-09",
-      "actual": 217.0,
-      "predicted": 233.1,
-      "baseline": 110.0,
-      "error": 16.1
-    },
-    {
-      "date": "2026-11-10",
-      "actual": 229.0,
-      "predicted": 223.9,
-      "baseline": 100.6,
-      "error": 5.1
-    },
-    {
-      "date": "2026-11-11",
-      "actual": 222.0,
-      "predicted": 223.2,
-      "baseline": 82.2,
-      "error": 1.2
-    },
-    {
-      "date": "2026-11-12",
-      "actual": 239.0,
-      "predicted": 220.9,
-      "baseline": 80.4,
+      "actual": 277.0,
+      "predicted": 295.1,
+      "baseline": 130.1,
       "error": 18.1
     },
     {
+      "date": "2026-11-10",
+      "actual": 289.0,
+      "predicted": 284.9,
+      "baseline": 120.7,
+      "error": 4.1
+    },
+    {
+      "date": "2026-11-11",
+      "actual": 282.0,
+      "predicted": 283.6,
+      "baseline": 97.2,
+      "error": 1.6
+    },
+    {
+      "date": "2026-11-12",
+      "actual": 305.0,
+      "predicted": 281.2,
+      "baseline": 95.4,
+      "error": 23.8
+    },
+    {
       "date": "2026-11-13",
-      "actual": 169.0,
-      "predicted": 245.7,
-      "baseline": 131.8,
-      "error": 76.7
+      "actual": 224.0,
+      "predicted": 307.2,
+      "baseline": 161.8,
+      "error": 83.2
     }
   ]
 }

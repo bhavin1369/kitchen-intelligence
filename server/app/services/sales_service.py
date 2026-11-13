@@ -9,9 +9,9 @@ def generate_order_number() -> str:
     count = Sale.query.count()
     return f"ORD-{1040 + count + 1}"
 
-def process_new_sale(data: dict, user_id: int = None) -> Sale:
+def process_new_sale(data: dict, user_id: int = None, deduct_inventory: bool = True) -> Sale:
     """
-    Creates a new sale and executes closed-loop recipe explosion
+    Creates a new sale and optionally executes closed-loop recipe explosion
     to decrement raw ingredients from active FEFO inventory batches.
     Runs inside a strict atomic database transaction.
     """
@@ -91,26 +91,27 @@ def process_new_sale(data: dict, user_id: int = None) -> Sale:
         )
         db.session.add(sale_item)
 
-        # Explode Recipe Bill of Materials and deduct ingredients via FEFO
-        recipes = Recipe.query.filter_by(menu_item_id=menu_item.id).all()
-        for recipe in recipes:
-            ingredient = recipe.ingredient
-            if not ingredient:
-                continue
+        # Explode Recipe Bill of Materials and deduct ingredients via FEFO if requested
+        if deduct_inventory:
+            recipes = Recipe.query.filter_by(menu_item_id=menu_item.id).all()
+            for recipe in recipes:
+                ingredient = recipe.ingredient
+                if not ingredient:
+                    continue
 
-            loss_factor = 1.0 + ((recipe.prep_loss_percentage or 0.0) / 100.0)
-            needed_qty = round(recipe.quantity * qty * loss_factor, 4)
+                loss_factor = 1.0 + ((recipe.prep_loss_percentage or 0.0) / 100.0)
+                needed_qty = round(recipe.quantity * qty * loss_factor, 4)
 
-            # Deduct from oldest active batches
-            consume_ingredient_fefo(
-                ingredient=ingredient,
-                required_qty=needed_qty,
-                required_unit=recipe.unit,
-                reference_id=sale.order_number,
-                reference_type="sales_order",
-                user_id=user_id,
-                notes=f"Order {sale.order_number}: {qty}x {menu_item.name}"
-            )
+                # Deduct from oldest active batches
+                consume_ingredient_fefo(
+                    ingredient=ingredient,
+                    required_qty=needed_qty,
+                    required_unit=recipe.unit,
+                    reference_id=sale.order_number,
+                    reference_type="sales_order",
+                    user_id=user_id,
+                    notes=f"Order {sale.order_number}: {qty}x {menu_item.name}"
+                )
 
     tax = round(subtotal * 0.05, 2) # 5% GST standard
     sale.subtotal = round(subtotal, 2)
@@ -120,7 +121,7 @@ def process_new_sale(data: dict, user_id: int = None) -> Sale:
     return sale
 
 
-def parse_and_import_sales_csv(csv_content: str, user_id: int = None) -> dict:
+def parse_and_import_sales_csv(csv_content: str, user_id: int = None, deduct_inventory: bool = False) -> dict:
     """
     Parses a CSV file with historical or bulk sales and executes the imports.
     Validates required columns:
@@ -212,7 +213,7 @@ def parse_and_import_sales_csv(csv_content: str, user_id: int = None) -> dict:
         existing = Sale.query.filter_by(order_number=ord_num).first()
         if not existing:
             try:
-                sale = process_new_sale(ord_data, user_id=user_id)
+                sale = process_new_sale(ord_data, user_id=user_id, deduct_inventory=deduct_inventory)
                 created_sales.append(sale.order_number)
             except Exception as e:
                 row_errors.append(f"Order {ord_num}: {str(e)}")

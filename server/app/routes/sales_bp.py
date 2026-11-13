@@ -201,7 +201,8 @@ def upload_sales_csv():
 
     try:
         content = file.stream.read().decode("utf-8-sig")
-        result = parse_and_import_sales_csv(content)
+        deduct_inv = request.form.get("deductInventory", "false").lower() in ("true", "1")
+        result = parse_and_import_sales_csv(content, deduct_inventory=deduct_inv)
         db.session.commit()
         return jsonify({
             "success": True,

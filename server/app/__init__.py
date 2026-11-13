@@ -8,8 +8,24 @@ if _venv_site.exists() and str(_venv_site) not in sys.path:
 
 from flask import Flask, jsonify
 from flask_cors import CORS
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
+import sqlite3
 from app.config import Config
 from app.extensions import db
+
+# Ensure SQLite enables foreign key constraints and WAL pragmas on all connections
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    if isinstance(dbapi_connection, sqlite3.Connection):
+        try:
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON;")
+            cursor.execute("PRAGMA journal_mode=WAL;")
+            cursor.execute("PRAGMA busy_timeout=5000;")
+            cursor.close()
+        except Exception:
+            pass
 
 def create_app(config_class=Config):
     app = Flask(__name__)
