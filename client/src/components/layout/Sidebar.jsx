@@ -46,7 +46,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
       )}
 
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-50 w-64 bg-forest-950 dark:bg-stone-900 text-stone-200 border-r border-forest-900/70 dark:border-stone-800 flex flex-col h-screen transition-transform duration-200 ease-in-out ${
+        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-forest-950 dark:bg-stone-900 text-stone-200 border-r border-forest-900/70 dark:border-stone-800 flex flex-col h-screen transition-transform duration-200 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
@@ -115,7 +115,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
 
         {/* Quick Footer with User & Logout */}
         {user && (
-          <div className="p-3 border-t border-forest-900/70 dark:border-stone-800 flex items-center justify-between shrink-0 text-xs">
+          <div className="p-3 border-t border-forest-900/70 dark:border-stone-800 flex items-center justify-between shrink-0 mt-auto text-xs bg-forest-950/80 dark:bg-stone-900/80">
             <div className="min-w-0 pr-2">
               <div className="font-semibold text-white truncate">{user.fullName}</div>
               <div className="text-[10px] text-stone-400 truncate">{user.role}</div>
