@@ -239,6 +239,68 @@ def adjust_stock():
     }), 200
 
 
+@inventory_bp.route("/consume", methods=["POST"])
+def consume_stock_endpoint():
+    """Consumes stock via FEFO prioritizing earlier expiry dates"""
+    data = request.get_json() or {}
+    ing_id = data.get("ingredientId") or data.get("ingredient_id")
+    qty = float(data.get("quantity", 0.0))
+    reason = data.get("reason", "kitchen_prep")
+
+    if not ing_id:
+        return jsonify({"success": False, "message": "Ingredient ID is required."}), 400
+    if qty <= 0:
+        return jsonify({"success": False, "message": "Quantity must be positive."}), 400
+
+    from app.services.purchase_service import record_stock_consumption
+    try:
+        res = record_stock_consumption(
+            ingredient_id=int(ing_id),
+            quantity=qty,
+            reason=reason
+        )
+        return jsonify(res), 200
+    except ValueError as ve:
+        return jsonify({"success": False, "message": str(ve)}), 400
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Server error: {str(e)}"}), 500
+
+
+@inventory_bp.route("/dashboard", methods=["GET"])
+def get_inventory_dashboard():
+    """Returns consolidated inventory health, valuation, and alerts"""
+    today = date.today()
+    ingredients = Ingredient.query.all()
+    batches = InventoryBatch.query.filter_by(status="active").all()
+
+    total_value = sum(i.current_stock * i.unit_cost for i in ingredients)
+    low_stock = [i for i in ingredients if i.current_stock <= i.reorder_point]
+    out_of_stock = [i for i in ingredients if i.current_stock <= 0.001]
+    near_expiry_batches = [b for b in batches if 0 <= (b.expiry_date - today).days <= 2]
+    expired_batches = [b for b in batches if b.expiry_date < today]
+
+    return jsonify({
+        "success": True,
+        "totalIngredients": len(ingredients),
+        "totalInventoryValue": round(total_value, 2),
+        "lowStockCount": len(low_stock),
+        "outOfStockCount": len(out_of_stock),
+        "nearExpiryBatchesCount": len(near_expiry_batches),
+        "expiredBatchesCount": len(expired_batches),
+        "urgentAlerts": [
+            {
+                "id": i.id,
+                "name": i.name,
+                "type": "Out of Stock" if i.current_stock <= 0 else "Low Stock",
+                "stock": i.current_stock,
+                "unit": i.unit,
+                "reorderPoint": i.reorder_point
+            }
+            for i in low_stock[:6]
+        ]
+    }), 200
+
+
 @inventory_bp.route("/movements", methods=["GET"])
 def get_movements():
     ingredient_id = request.args.get("ingredientId") or request.args.get("ingredient_id")

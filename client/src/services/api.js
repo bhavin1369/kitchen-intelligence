@@ -68,7 +68,24 @@ export const salesService = {
 export const inventoryService = {
   getIngredients: (params) => api.get("/inventory/ingredients", { params }),
   getIngredient: (id) => api.get(`/inventory/ingredients/${id}`),
+  createIngredient: (data) => api.post("/inventory/ingredients", data),
+  updateIngredient: (id, data) => api.put(`/inventory/ingredients/${id}`, data),
   getBatches: (params) => api.get("/inventory/batches", { params }),
+  receiveBatch: (data) => api.post("/inventory/batches", data),
+  adjustStock: (data) => api.post("/inventory/adjust", data),
+  consumeStock: (data) => api.post("/inventory/consume", data),
+  getMovements: (params) => api.get("/inventory/movements", { params }),
+  getDashboard: () => api.get("/inventory/dashboard"),
+}
+
+export const purchaseService = {
+  getRecommendations: (params) => api.get("/purchases/recommendations", { params }),
+  getRequirements: (params) => api.get("/purchases/requirements", { params }),
+  getAll: (params) => api.get("/purchases", { params }),
+  getById: (id) => api.get(`/purchases/${id}`),
+  create: (data) => api.post("/purchases", data),
+  update: (id, data) => api.put(`/purchases/${id}`, data),
+  receive: (id) => api.post(`/purchases/${id}/receive`),
 }
 
 export const forecastService = {

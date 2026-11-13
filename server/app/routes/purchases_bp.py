@@ -1,13 +1,65 @@
 from datetime import datetime, date, timedelta
 from flask import Blueprint, request, jsonify
 from app.extensions import db
-from app.models import Purchase, PurchaseItem, Ingredient, InventoryBatch, StockMovement, Forecast, Recipe
+from app.models import Purchase, PurchaseItem, Ingredient, InventoryBatch, StockMovement
 from app.services.inventory_service import receive_batch
+from app.services.purchase_service import (
+    calculate_ingredient_requirements,
+    generate_purchase_recommendations
+)
 
 purchases_bp = Blueprint("purchases_bp", __name__)
 
+
+@purchases_bp.route("/recommendations", methods=["GET"])
+def get_recommendations_endpoint():
+    """
+    Computes intelligent purchase recommendations based on AI demand forecasts,
+    BOM recipe explosion, and usable non-expired inventory stock:
+    Purchase Qty = Max(0, Required Qty + Safety Stock - Usable Stock)
+    """
+    days = int(request.args.get("days", 3))
+    days = max(1, min(30, days))
+
+    start_date_str = request.args.get("startDate") or request.args.get("start_date")
+    start_d = None
+    if start_date_str:
+        try:
+            start_d = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            pass
+
+    try:
+        data = generate_purchase_recommendations(days_ahead=days, start_date=start_d)
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error calculating recommendations: {str(e)}"}), 500
+
+
+@purchases_bp.route("/requirements", methods=["GET"])
+def get_requirements_endpoint():
+    """Calculates pure raw ingredient requirements across all forecasted dishes"""
+    days = int(request.args.get("days", 3))
+    days = max(1, min(30, days))
+
+    start_date_str = request.args.get("startDate") or request.args.get("start_date")
+    start_d = None
+    if start_date_str:
+        try:
+            start_d = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            pass
+
+    try:
+        data = calculate_ingredient_requirements(days_ahead=days, start_date=start_d)
+        return jsonify({"success": True, "data": data}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
 @purchases_bp.route("", methods=["GET"])
 def get_purchases():
+    """Retrieves purchase orders history with line items"""
     status = request.args.get("status")
     query = Purchase.query
     if status and status.lower() != "all":
@@ -31,15 +83,14 @@ def get_purchase_detail(po_id):
 
 @purchases_bp.route("", methods=["POST"])
 def create_purchase():
+    """Creates a consolidated purchase order list (draft)"""
     data = request.get_json() or {}
-    supplier = data.get("supplierName") or data.get("supplier_name", "Local Supplier")
+    supplier = data.get("supplierName") or data.get("supplier_name", "Consolidated Suppliers")
     items_data = data.get("items", [])
     lead_time = data.get("leadTime") or data.get("lead_time", "24 hours")
     contact = data.get("contact", "")
     notes = data.get("notes", "")
 
-    if not supplier:
-        return jsonify({"success": False, "message": "Supplier name is required."}), 400
     if not items_data:
         return jsonify({"success": False, "message": "Purchase order must have at least one line item."}), 400
 
@@ -73,8 +124,8 @@ def create_purchase():
         po_item = PurchaseItem(
             purchase_id=po.id,
             ingredient_id=ing_id,
-            forecasted_demand=float(it.get("forecastedDemand", 0.0)),
-            current_stock=float(it.get("currentStock", 0.0)),
+            forecasted_demand=float(it.get("requiredQuantity") or it.get("forecastedDemand") or 0.0),
+            current_stock=float(it.get("usableStock") or it.get("currentStock") or 0.0),
             recommended_quantity=rec_qty,
             approved_quantity=app_qty,
             unit=unit,
@@ -88,13 +139,14 @@ def create_purchase():
 
     return jsonify({
         "success": True,
-        "message": f"Purchase order {po.po_number} created.",
+        "message": f"Purchase order {po.po_number} created with {len(items_data)} items.",
         "data": po.to_dict()
     }), 201
 
 
 @purchases_bp.route("/<int:po_id>", methods=["PUT"])
-def update_purchase_status(po_id):
+def update_purchase(po_id):
+    """Updates purchase status (draft, ordered, cancelled) or notes"""
     po = db.session.get(Purchase, po_id)
     if not po:
         return jsonify({"success": False, "message": "Purchase order not found."}), 404
@@ -104,11 +156,13 @@ def update_purchase_status(po_id):
         po.status = data["status"]
     if "notes" in data:
         po.notes = data["notes"]
+    if "supplierName" in data or "supplier_name" in data:
+        po.supplier_name = data.get("supplierName") or data.get("supplier_name")
 
     db.session.commit()
     return jsonify({
         "success": True,
-        "message": f"Purchase order {po.po_number} status updated to '{po.status}'.",
+        "message": f"Purchase order {po.po_number} updated.",
         "data": po.to_dict()
     }), 200
 
@@ -116,8 +170,8 @@ def update_purchase_status(po_id):
 @purchases_bp.route("/<int:po_id>/receive", methods=["POST"])
 def receive_purchase_order(po_id):
     """
-    Receives all items from an approved PO directly into FEFO inventory batches,
-    updating stock and logging stock movements atomically.
+    Receives all items from an approved/ordered PO directly into active FEFO inventory batches,
+    updating current usable stock and logging stock movements atomically.
     """
     po = db.session.get(Purchase, po_id)
     if not po:
@@ -134,7 +188,6 @@ def receive_purchase_order(po_id):
             if not ing:
                 continue
 
-            # Batch expiry based on shelf life
             shelf_days = ing.shelf_life_days or 7
             exp_date = today + timedelta(days=shelf_days)
             batch_num = f"{ing.name[:3].upper()}-{today.strftime('%m%d')}-{it.id}"
@@ -157,11 +210,10 @@ def receive_purchase_order(po_id):
 
         return jsonify({
             "success": True,
-            "message": f"PO {po.po_number} marked received. {len(received_batches)} batches stocked in.",
+            "message": f"PO {po.po_number} marked as received. Stock updated and {len(received_batches)} batches created.",
             "batchesReceived": received_batches,
             "data": po.to_dict()
         }), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": f"Failed to receive PO: {str(e)}"}), 500
-

@@ -273,3 +273,4 @@ def get_latest_model_metadata() -> Optional[Dict[str, Any]]:
             return json.load(f)
     except Exception:
         return None
+

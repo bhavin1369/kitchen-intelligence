@@ -133,3 +133,4 @@ def get_upcoming_indian_events(start_d: date, end_d: date) -> List[Dict[str, Any
                 })
         curr += timedelta(days=1)
     return events
+
