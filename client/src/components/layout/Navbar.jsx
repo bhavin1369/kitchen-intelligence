@@ -23,7 +23,7 @@ const PAGE_TITLES = {
 
 export const Navbar = ({ onToggleSidebar }) => {
   const { user, logout, switchRole } = useAuth()
-  const { theme, toggleTheme, isDark } = useTheme()
+  const { theme, setTheme, toggleTheme, isDark } = useTheme()
   const location = useLocation()
   const [showAlertsDropdown, setShowAlertsDropdown] = useState(false)
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
@@ -68,15 +68,37 @@ export const Navbar = ({ onToggleSidebar }) => {
           <span>{todayFormatted}</span>
         </div>
 
-        {/* Theme Switcher Button */}
-        <button
-          onClick={toggleTheme}
-          className="p-1.5 rounded-md text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200 dark:border-stone-700 transition cursor-pointer"
-          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          aria-label="Toggle Dark and Light Mode"
-        >
-          {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-stone-600" />}
-        </button>
+        {/* Theme Switcher Segmented Control */}
+        <div className="flex items-center bg-stone-100 dark:bg-stone-800 p-0.5 rounded-lg border border-stone-200 dark:border-stone-700 text-xs">
+          <button
+            type="button"
+            onClick={() => setTheme("light")}
+            className={`px-2 py-1 rounded-md flex items-center space-x-1.5 transition cursor-pointer ${
+              !isDark
+                ? "bg-white text-stone-900 font-semibold shadow-xs border border-stone-200/80"
+                : "text-stone-400 hover:text-stone-200"
+            }`}
+            title="Switch to Light Theme"
+            aria-label="Light Theme"
+          >
+            <Sun className={`w-3.5 h-3.5 ${!isDark ? "text-amber-500 fill-amber-500/20" : "text-stone-400"}`} />
+            <span className="hidden sm:inline text-[11px]">Light</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setTheme("dark")}
+            className={`px-2 py-1 rounded-md flex items-center space-x-1.5 transition cursor-pointer ${
+              isDark
+                ? "bg-stone-700 text-stone-100 font-semibold shadow-xs border border-stone-600/80"
+                : "text-stone-500 hover:text-stone-800"
+            }`}
+            title="Switch to Dark Theme"
+            aria-label="Dark Theme"
+          >
+            <Moon className={`w-3.5 h-3.5 ${isDark ? "text-amber-300 fill-amber-300/20" : "text-stone-500"}`} />
+            <span className="hidden sm:inline text-[11px]">Dark</span>
+          </button>
+        </div>
 
         {/* Alerts Notification Bell */}
         <div className="relative">

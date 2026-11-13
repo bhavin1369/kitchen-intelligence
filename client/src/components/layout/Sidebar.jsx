@@ -46,27 +46,27 @@ export const Sidebar = ({ isOpen, onClose }) => {
       )}
 
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-forest-950 dark:bg-stone-900 text-stone-200 border-r border-forest-900/70 dark:border-stone-800 flex flex-col h-screen transition-transform duration-200 ease-in-out ${
+        className={`fixed top-0 bottom-0 left-0 z-40 w-64 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 border-r border-stone-200 dark:border-stone-800 flex flex-col h-screen transition-all duration-200 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         {/* Brand Header */}
-        <div className="h-14 px-5 border-b border-forest-900/70 dark:border-stone-800 flex items-center justify-between shrink-0">
+        <div className="h-14 px-5 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between shrink-0 bg-white dark:bg-stone-900">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-lg bg-forest-900 dark:bg-stone-800 flex items-center justify-center border border-forest-800 dark:border-stone-700 text-stone-200">
               <ChefHat className="w-4 h-4 text-emerald-400" />
             </div>
             <div>
-              <span className="font-bold text-white text-sm tracking-tight font-sans block leading-none">
+              <span className="font-bold text-stone-900 dark:text-white text-sm tracking-tight font-sans block leading-none">
                 Kitchen Intel
               </span>
-              <span className="text-[10px] text-stone-400 font-normal">Commercial Kitchen OS</span>
+              <span className="text-[10px] text-stone-500 dark:text-stone-400 font-normal">Commercial Kitchen OS</span>
             </div>
           </div>
           {/* Close button on mobile */}
           <button
             onClick={onClose}
-            className="lg:hidden p-1.5 rounded-md text-stone-400 hover:text-white hover:bg-forest-900 dark:hover:bg-stone-800 transition cursor-pointer"
+            className="lg:hidden p-1.5 rounded-md text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -94,17 +94,17 @@ export const Sidebar = ({ isOpen, onClose }) => {
                 className={({ isActive }) =>
                   `flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-colors ${
                     isActive
-                      ? "bg-forest-900 dark:bg-stone-800 text-white font-semibold shadow-xs"
-                      : "text-stone-300 hover:text-white hover:bg-forest-900/50 dark:hover:bg-stone-800/60"
+                      ? "bg-forest-900 dark:bg-emerald-700 text-white font-semibold shadow-xs"
+                      : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800"
                   }`
                 }
               >
                 <div className="flex items-center space-x-2.5">
-                  <Icon className="w-4 h-4 text-stone-400" />
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-stone-400 group-hover:text-stone-600 dark:text-stone-400"}`} />
                   <span>{item.label}</span>
                 </div>
                 {item.badge && (
-                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
                     {item.badge}
                   </span>
                 )}
@@ -115,14 +115,14 @@ export const Sidebar = ({ isOpen, onClose }) => {
 
         {/* Quick Footer with User & Logout */}
         {user && (
-          <div className="p-3 border-t border-forest-900/70 dark:border-stone-800 flex items-center justify-between shrink-0 mt-auto text-xs bg-forest-950/80 dark:bg-stone-900/80">
+          <div className="p-3 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between shrink-0 mt-auto text-xs bg-stone-50/80 dark:bg-stone-900/90">
             <div className="min-w-0 pr-2">
-              <div className="font-semibold text-white truncate">{user.fullName}</div>
-              <div className="text-[10px] text-stone-400 truncate">{user.role}</div>
+              <div className="font-semibold text-stone-900 dark:text-white truncate">{user.fullName}</div>
+              <div className="text-[10px] text-stone-500 dark:text-stone-400 truncate">{user.role}</div>
             </div>
             <button
               onClick={logout}
-              className="p-1.5 rounded-md hover:bg-forest-900 dark:hover:bg-stone-800 text-stone-400 hover:text-rose-400 transition cursor-pointer"
+              className="p-1.5 rounded-md hover:bg-stone-200/60 dark:hover:bg-stone-800 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 transition cursor-pointer"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />

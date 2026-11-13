@@ -3,11 +3,16 @@ import React, { createContext, useContext, useState, useEffect } from "react"
 const ThemeContext = createContext()
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
+  const [theme, setThemeState] = useState(() => {
     try {
       const saved = localStorage.getItem("kitchen_theme")
-      if (saved) return saved
-      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+      if (saved === "dark" || saved === "light") {
+        return saved
+      }
+      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        return "dark"
+      }
+      return "light"
     } catch {
       return "light"
     }
@@ -28,13 +33,19 @@ export const ThemeProvider = ({ children }) => {
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"))
+    setThemeState((prev) => (prev === "dark" ? "light" : "dark"))
+  }
+
+  const setTheme = (newTheme) => {
+    if (newTheme === "dark" || newTheme === "light") {
+      setThemeState(newTheme)
+    }
   }
 
   const isDark = theme === "dark"
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark }}>
+    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isDark }}>
       {children}
     </ThemeContext.Provider>
   )
@@ -47,4 +58,3 @@ export const useTheme = () => {
   }
   return context
 }
-
