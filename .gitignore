@@ -1,0 +1,45 @@
+# Virtual Environment
+server/venv/
+venv/
+ENV/
+env/
+.venv/
+
+# Node dependencies
+client/node_modules/
+node_modules/
+.pnpm-store/
+
+# Build outputs
+client/dist/
+dist/
+build/
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# SQLite temporary journal files
+*.db-wal
+*.db-shm
+*.db-journal
+
+# Environment variables & local secrets
+.env
+.env.local
+.env.*.local
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
