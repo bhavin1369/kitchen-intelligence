@@ -300,7 +300,7 @@ export const ActionPlanPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 text-stone-800">
-              {menuTargets.map((item, idx) => (
+              {(menuTargets || []).map((item, idx) => (
                 <tr key={idx} className="hover:bg-stone-50/50 transition">
                   <td className="py-2.5 px-3 font-semibold text-stone-900">
                     {item.dishName}
@@ -353,7 +353,7 @@ export const ActionPlanPage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
-          {prepTasks.map((task) => (
+          {(prepTasks || []).map((task) => (
             <div
               key={task.taskId}
               onClick={() => togglePrepTask(task.taskId)}
@@ -404,14 +404,14 @@ export const ActionPlanPage = () => {
             </span>
           </div>
 
-          {urgentPurchases.length === 0 ? (
+          {(!urgentPurchases || urgentPurchases.length === 0) ? (
             <div className="p-6 text-center text-xs text-stone-500 bg-stone-50 rounded-lg border border-stone-200">
               <CheckCircle2 className="w-5 h-5 text-emerald-600 mx-auto mb-1" />
               <span>Sufficient stock on hand for today's service! Zero urgent purchases needed.</span>
             </div>
           ) : (
             <div className="space-y-2">
-              {urgentPurchases.map((p, idx) => (
+              {(urgentPurchases || []).map((p, idx) => (
                 <div
                   key={idx}
                   className="p-3 rounded-lg bg-stone-50 border border-stone-200 text-xs flex items-center justify-between"
@@ -447,7 +447,7 @@ export const ActionPlanPage = () => {
           </div>
 
           <div className="space-y-2">
-            {fefoPriorities.map((f, idx) => (
+            {(fefoPriorities || []).map((f, idx) => (
               <div
                 key={idx}
                 className="p-3 rounded-lg bg-stone-50 border border-stone-200 text-xs flex items-center justify-between"

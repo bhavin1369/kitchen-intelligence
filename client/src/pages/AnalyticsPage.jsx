@@ -42,7 +42,11 @@ export const AnalyticsPage = () => {
   const { user } = useAuth()
   const [dateRange, setDateRange] = useState("30days")
   const [downloadSuccess, setDownloadSuccess] = useState("")
-  const [financialData, setFinancialData] = useState(analyticsReport)
+  const [financialData, setFinancialData] = useState(() => ({
+    ...analyticsReport,
+    categoryBreakdown: analyticsReport.categoryBreakdown || [],
+    monthlyFinancials: analyticsReport.monthlyFinancials || []
+  }))
   const [backups, setBackups] = useState([])
   const [backingUp, setBackingUp] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -382,7 +386,7 @@ export const AnalyticsPage = () => {
                   paddingAngle={3}
                   dataKey="value"
                 >
-                  {financialData.categoryBreakdown.map((entry, index) => (
+                  {(financialData?.categoryBreakdown || []).map((entry, index) => (
                     <Cell key={`pie-cell-${index}`} fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} />
                   ))}
                 </Pie>
@@ -401,7 +405,7 @@ export const AnalyticsPage = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-[11px] pt-3 border-t border-stone-100">
-            {financialData.categoryBreakdown.map((cat, i) => (
+            {(financialData?.categoryBreakdown || []).map((cat, i) => (
               <div key={i} className="flex items-center space-x-1.5">
                 <span
                   className="w-2 h-2 rounded-full shrink-0"
@@ -454,7 +458,7 @@ export const AnalyticsPage = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100 text-stone-800 font-mono">
-                  {backups.map((b, idx) => (
+                  {(backups || []).map((b, idx) => (
                     <tr key={idx} className="hover:bg-stone-50/70 transition">
                       <td className="py-2.5 px-3 font-semibold text-stone-900 font-sans">{b.filename}</td>
                       <td className="py-2.5 px-3 text-right text-stone-600">{b.sizeKb} KB</td>
@@ -497,7 +501,7 @@ export const AnalyticsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 text-stone-800 font-mono">
-              {financialData.monthlyFinancials.map((row, idx) => {
+              {(financialData?.monthlyFinancials || []).map((row, idx) => {
                 const cogsPct = ((row.cogs / row.revenue) * 100).toFixed(1)
                 const marginPct = (100 - cogsPct).toFixed(1)
                 const wastePct = ((row.waste / row.revenue) * 100).toFixed(1)

@@ -1006,7 +1006,7 @@ export const PurchasePlannerPage = () => {
 
                   <div className="text-[11px] text-stone-600 font-medium">Contributing Dishes:</div>
                   <div className="space-y-1">
-                    {item.contributingDishes.map((dish, idx) => (
+                    {(item.contributingDishes || []).map((dish, idx) => (
                       <div
                         key={idx}
                         className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-md border border-stone-200"

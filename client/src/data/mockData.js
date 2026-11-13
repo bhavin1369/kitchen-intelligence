@@ -849,11 +849,19 @@ export const analyticsReport = {
   forecastAccuracy: 93.8,
   modelMae: 3.2,
   categoryBreakdown: [
-    { name: "Rice & Biryani", sales: 485000, color: "#166534" },
-    { name: "Main Course Curries", sales: 412000, color: "#22c55e" },
-    { name: "Tandoor Breads", sales: 165000, color: "#d97706" },
-    { name: "Starters & Snacks", sales: 142500, color: "#f59e0b" },
-    { name: "Desserts & Drinks", sales: 80000, color: "#0b2e23" },
+    { name: "Rice & Biryani", value: 38.5, sales: 485000, color: "#166534" },
+    { name: "Main Course Curries", value: 32.8, sales: 412000, color: "#22c55e" },
+    { name: "Tandoor Breads", value: 13.2, sales: 165000, color: "#d97706" },
+    { name: "Starters & Snacks", value: 10.5, sales: 142500, color: "#f59e0b" },
+    { name: "Desserts & Drinks", value: 5.0, sales: 80000, color: "#0b2e23" },
+  ],
+  monthlyFinancials: [
+    { month: "Jun", revenue: 890000, cogs: 298000, waste: 22400 },
+    { month: "Jul", revenue: 940000, cogs: 310000, waste: 20800 },
+    { month: "Aug", revenue: 1020000, cogs: 332000, waste: 18500 },
+    { month: "Sep", revenue: 1080000, cogs: 348000, waste: 16900 },
+    { month: "Oct", revenue: 1120000, cogs: 358000, waste: 15200 },
+    { month: "Nov", revenue: 1245800, cogs: 396000, waste: 14200 },
   ],
   wasteByReason: [
     { reason: "Over-Preparation", percentage: 42, cost: 5964 },
@@ -864,11 +872,11 @@ export const analyticsReport = {
 }
 
 export const indianCalendarEvents = [
-  { date: "2026-11-08", name: "Diwali (Deepavali)", type: "Festival", impact: "+60% Surge", active: true },
-  { date: "2026-11-09", name: "Govardhan Puja / New Year", type: "Festival", impact: "+45% Surge", active: true },
-  { date: "2026-11-10", name: "Bhai Dooj", type: "Festival", impact: "+30% Surge", active: true },
-  { date: "2026-11-24", name: "Guru Nanak Jayanti", type: "Festival", impact: "+20% Surge", active: true },
-  { date: "2026-12-25", name: "Christmas Day", type: "Holiday", impact: "+50% Surge", active: true },
-  { date: "2026-12-31", name: "New Year's Eve", type: "Holiday", impact: "+70% Peak", active: true },
+  { id: "evt-1", date: "2026-11-08", dateRange: "8 Nov - 12 Nov", name: "Diwali (Deepavali)", type: "Festival", categoryImpact: "Sweets & Festive Thalis", multiplier: 1.6, impact: "+60% Surge", active: true, isActive: true },
+  { id: "evt-2", date: "2026-11-09", dateRange: "9 Nov", name: "Govardhan Puja / New Year", type: "Festival", categoryImpact: "Vegetarian Feasts", multiplier: 1.45, impact: "+45% Surge", active: true, isActive: true },
+  { id: "evt-3", date: "2026-11-10", dateRange: "10 Nov", name: "Bhai Dooj", type: "Festival", categoryImpact: "Family Dining Sets", multiplier: 1.3, impact: "+30% Surge", active: true, isActive: true },
+  { id: "evt-4", date: "2026-11-24", dateRange: "24 Nov", name: "Guru Nanak Jayanti", type: "Festival", categoryImpact: "Langar & Canteen Specials", multiplier: 1.2, impact: "+20% Surge", active: true, isActive: true },
+  { id: "evt-5", date: "2026-12-25", dateRange: "25 Dec", name: "Christmas Day", type: "Holiday", categoryImpact: "Bakery & Desserts", multiplier: 1.5, impact: "+50% Surge", active: true, isActive: true },
+  { id: "evt-6", date: "2026-12-31", dateRange: "31 Dec - 1 Jan", name: "New Year's Eve", type: "Holiday", categoryImpact: "Buffet & Beverages", multiplier: 1.7, impact: "+70% Peak", active: true, isActive: true },
 ]
 

@@ -32,7 +32,7 @@ export const SettingsPage = () => {
   const [autoDraftPOs, setAutoDraftPOs] = useState(true)
 
   // Calendar multipliers
-  const [events, setEvents] = useState(indianCalendarEvents)
+  const [events, setEvents] = useState(() => (indianCalendarEvents || []))
 
   const handleSave = (e) => {
     e.preventDefault()
@@ -42,7 +42,7 @@ export const SettingsPage = () => {
 
   const handleToggleEvent = (id) => {
     setEvents((prev) =>
-      prev.map((evt) => (evt.id === id ? { ...evt, isActive: !evt.isActive } : evt))
+      (prev || []).map((evt) => (evt.id === id ? { ...evt, isActive: !evt.isActive } : evt))
     )
   }
 
@@ -267,24 +267,28 @@ export const SettingsPage = () => {
           </div>
 
           <div className="divide-y divide-stone-100 border border-stone-200 rounded-lg overflow-hidden">
-            {events.map((evt) => (
-              <div key={evt.id} className="p-3.5 flex items-center justify-between hover:bg-stone-50/70 transition">
+            {(events || []).map((evt) => (
+              <div key={evt.id || evt.name} className="p-3.5 flex items-center justify-between hover:bg-stone-50/70 transition">
                 <div>
                   <div className="font-semibold text-stone-900 text-xs">{evt.name}</div>
                   <div className="text-stone-500 text-[11px] mt-0.5">
-                    {evt.dateRange} • Affects: {evt.categoryImpact}
+                    {evt.dateRange || evt.date} • Affects: {evt.categoryImpact || "Demand Multiplier"}
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-3">
                   <span className="font-mono font-semibold text-xs bg-amber-50 text-amber-800 px-2 py-0.5 rounded border border-amber-200">
-                    +{Math.round((evt.multiplier - 1) * 100)}% ({evt.multiplier}x)
+                    +{Math.round(((evt.multiplier || 1.3) - 1) * 100)}% ({evt.multiplier || 1.3}x)
                   </span>
                   <button
                     onClick={() => handleToggleEvent(evt.id)}
-                    className="cursor-pointer text-xs font-medium px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-700 transition"
+                    className={`cursor-pointer text-xs font-medium px-2.5 py-1 rounded-md transition ${
+                      evt.isActive !== false
+                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                        : "bg-stone-100 text-stone-500 hover:bg-stone-200"
+                    }`}
                   >
-                    Active
+                    {evt.isActive !== false ? "Active" : "Paused"}
                   </button>
                 </div>
               </div>
