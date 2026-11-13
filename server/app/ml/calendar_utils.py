@@ -102,6 +102,22 @@ def get_calendar_features(d: date) -> Dict[str, Any]:
     # Clamped distance to nearest festival (-14 to +14)
     clamped_dist = max(-14, min(14, nearest_dist)) if abs(nearest_dist) <= 14 else 14
 
+    # Check for custom kitchen events if database context available
+    custom_event = None
+    try:
+        from flask import has_app_context
+        if has_app_context():
+            from app.models.unique_features import KitchenEvent
+            custom_event = KitchenEvent.query.filter_by(event_date=d, is_active=True).first()
+    except Exception:
+        pass
+
+    if custom_event:
+        is_festival = 1
+        event_label = custom_event.title
+        nearest_name = custom_event.title
+        clamped_dist = 0
+
     return {
         "day_of_week": day_of_week,
         "is_weekend": is_weekend,
@@ -111,9 +127,11 @@ def get_calendar_features(d: date) -> Dict[str, Any]:
         "day_of_year": d.timetuple().tm_yday,
         "is_public_holiday": is_public_holiday,
         "is_indian_festival": 1 if is_festival or abs(clamped_dist) <= 1 else 0,
-        "festival_name": nearest_name if abs(clamped_dist) <= 2 else None,
+        "festival_name": nearest_name if (abs(clamped_dist) <= 2 or custom_event) else None,
         "days_to_nearest_festival": clamped_dist,
-        "event_label": event_label
+        "event_label": event_label,
+        "custom_event_multiplier": custom_event.expected_impact if custom_event else 1.0,
+        "custom_extra_portions": custom_event.expected_extra_portions if custom_event else 0.0
     }
 
 def get_upcoming_indian_events(start_d: date, end_d: date) -> List[Dict[str, Any]]:

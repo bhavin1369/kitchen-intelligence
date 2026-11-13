@@ -114,4 +114,28 @@ export const wasteService = {
   },
 }
 
+export const eventsService = {
+  getAll: (params) => api.get("/events", { params }),
+  create: (data) => api.post("/events", data),
+  update: (id, data) => api.put(`/events/${id}`, data),
+  delete: (id) => api.delete(`/events/${id}`),
+  getHistoricalImpact: () => api.get("/events/historical-impact"),
+}
+
+export const xaiService = {
+  getFeatureImportance: () => api.get("/xai/feature-importance"),
+  getDishExplanation: (dishId) => api.get(`/xai/dish-explanation/${dishId}`),
+  getModelEvaluation: () => api.get("/xai/model-evaluation"),
+}
+
+export const environmentalService = {
+  getImpact: (params) => api.get("/environmental/impact", { params }),
+}
+
+export const actionPlanService = {
+  getPlan: (params) => api.get("/action-plan", { params }),
+  updatePlan: (dateStr, data) => api.put(`/action-plan/${dateStr}`, data),
+  resetPlan: (dateStr) => api.post(`/action-plan/${dateStr}/reset`),
+}
+
 export default api

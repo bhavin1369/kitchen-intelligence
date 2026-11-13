@@ -35,6 +35,10 @@ def create_app(config_class=Config):
     from app.routes.purchases_bp import purchases_bp
     from app.routes.reports_bp import reports_bp
     from app.routes.forecasts_bp import forecasts_bp
+    from app.routes.events_bp import events_bp
+    from app.routes.xai_bp import xai_bp
+    from app.routes.environmental_bp import environmental_bp
+    from app.routes.action_plan_bp import action_plan_bp
 
     app.register_blueprint(health_bp, url_prefix="/api/v1")
     app.register_blueprint(auth_bp, url_prefix="/api/v1/auth")
@@ -45,6 +49,10 @@ def create_app(config_class=Config):
     app.register_blueprint(purchases_bp, url_prefix="/api/v1/purchases")
     app.register_blueprint(reports_bp, url_prefix="/api/v1/reports")
     app.register_blueprint(forecasts_bp, url_prefix="/api/v1/forecasts")
+    app.register_blueprint(events_bp, url_prefix="/api/v1/events")
+    app.register_blueprint(xai_bp, url_prefix="/api/v1/xai")
+    app.register_blueprint(environmental_bp, url_prefix="/api/v1/environmental")
+    app.register_blueprint(action_plan_bp, url_prefix="/api/v1/action-plan")
 
     # Additional health alias at /api/health
     @app.route("/api/health")

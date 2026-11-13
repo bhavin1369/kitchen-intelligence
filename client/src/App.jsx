@@ -15,6 +15,8 @@ import { WasteManagementPage } from "./pages/WasteManagementPage"
 import { LeftoverSuggestionsPage } from "./pages/LeftoverSuggestionsPage"
 import { AnalyticsPage } from "./pages/AnalyticsPage"
 import { SettingsPage } from "./pages/SettingsPage"
+import { ActionPlanPage } from "./pages/ActionPlanPage"
+import { EnvironmentalImpactPage } from "./pages/EnvironmentalImpactPage"
 import { LoginPage } from "./pages/LoginPage"
 
 const ProtectedRoute = ({ children }) => {
@@ -54,6 +56,10 @@ export function App() {
             {/* 1. Dashboard */}
             <Route index element={<DashboardPage />} />
 
+            {/* Daily Action Plan */}
+            <Route path="daily-plan" element={<ActionPlanPage />} />
+            <Route path="action-plan" element={<Navigate to="/daily-plan" replace />} />
+
             {/* 2. Sales Management */}
             <Route path="sales" element={<SalesPage />} />
 
@@ -80,6 +86,10 @@ export function App() {
             <Route path="ai-recipes" element={<LeftoverSuggestionsPage />} />
             <Route path="leftover-recipes" element={<Navigate to="/ai-recipes" replace />} />
             <Route path="expiry-alerts" element={<Navigate to="/inventory" replace />} />
+
+            {/* Environmental Impact Tracker */}
+            <Route path="environmental" element={<EnvironmentalImpactPage />} />
+            <Route path="eco" element={<Navigate to="/environmental" replace />} />
 
             {/* 10. Analytics & Reports */}
             <Route path="analytics" element={<AnalyticsPage />} />

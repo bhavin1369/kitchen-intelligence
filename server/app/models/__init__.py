@@ -6,6 +6,7 @@ from app.models.sale import Sale, SaleItem
 from app.models.batch import InventoryBatch, StockMovement
 from app.models.purchase import Purchase, PurchaseItem
 from app.models.waste import WasteRecord, Forecast
+from app.models.unique_features import KitchenEvent, DailyActionPlan
 
 __all__ = [
     "User",
@@ -20,6 +21,8 @@ __all__ = [
     "Purchase",
     "PurchaseItem",
     "WasteRecord",
-    "Forecast"
+    "Forecast",
+    "KitchenEvent",
+    "DailyActionPlan"
 ]
 

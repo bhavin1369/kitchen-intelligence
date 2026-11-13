@@ -14,12 +14,15 @@ import {
   Settings,
   LogOut,
   X,
-  Compass
+  Compass,
+  ClipboardCheck,
+  Leaf
 } from "lucide-react"
 import { useAuth } from "../../context/AuthContext"
 
 export const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/daily-plan", label: "Daily Action Plan", icon: ClipboardCheck, badge: "Today", badgeType: "emerald" },
   { to: "/sales", label: "Sales Management", icon: Receipt },
   { to: "/menu", label: "Menu Management", icon: UtensilsCrossed },
   { to: "/recipes", label: "Recipe Management", icon: ChefHat },
@@ -28,6 +31,7 @@ export const NAV_ITEMS = [
   { to: "/purchase-planner", label: "Purchase Planner", icon: ShoppingCart, badge: "4 Drafts", badgeType: "gold" },
   { to: "/waste", label: "Food Waste Log", icon: Trash2 },
   { to: "/ai-recipes", label: "AI Recipe Suggestions", icon: Sparkles, badge: "3 Surplus", badgeType: "urgent" },
+  { to: "/environmental", label: "Eco Impact Tracker", icon: Leaf },
   { to: "/analytics", label: "Analytics & Reports", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: Settings },
 ]
