@@ -195,3 +195,4 @@ def reset_daily_action_plan(plan_date: date) -> Dict[str, Any]:
         db.session.delete(plan)
         db.session.commit()
     return get_or_create_daily_action_plan(plan_date)
+

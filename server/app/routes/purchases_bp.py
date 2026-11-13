@@ -1,5 +1,5 @@
 from datetime import datetime, date, timedelta
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from app.extensions import db
 from app.models import Purchase, PurchaseItem, Ingredient, InventoryBatch, StockMovement
 from app.services.inventory_service import receive_batch
@@ -7,6 +7,8 @@ from app.services.purchase_service import (
     calculate_ingredient_requirements,
     generate_purchase_recommendations
 )
+from app.services.reports_service import export_purchases_csv
+from app.utils.auth import roles_required
 
 purchases_bp = Blueprint("purchases_bp", __name__)
 
@@ -114,8 +116,8 @@ def create_purchase():
     total_cost = 0.0
     for it in items_data:
         ing_id = it.get("ingredientId") or it.get("ingredient_id")
-        rec_qty = float(it.get("recommendedPurchase") or it.get("recommended_quantity") or 1.0)
-        app_qty = float(it.get("approvedQuantity") or rec_qty)
+        rec_qty = float(it.get("quantity") or it.get("recommendedPurchase") or it.get("recommended_quantity") or 1.0)
+        app_qty = float(it.get("approvedQuantity") or it.get("quantity") or rec_qty)
         unit = it.get("unit", "kg")
         unit_cost = float(it.get("unitCost") or it.get("unit_cost") or 50.0)
         subtotal = round(app_qty * unit_cost, 2)
@@ -145,6 +147,7 @@ def create_purchase():
 
 
 @purchases_bp.route("/<int:po_id>", methods=["PUT"])
+@roles_required("admin", "manager")
 def update_purchase(po_id):
     """Updates purchase status (draft, ordered, cancelled) or notes"""
     po = db.session.get(Purchase, po_id)
@@ -168,6 +171,7 @@ def update_purchase(po_id):
 
 
 @purchases_bp.route("/<int:po_id>/receive", methods=["POST"])
+@roles_required("admin", "manager")
 def receive_purchase_order(po_id):
     """
     Receives all items from an approved/ordered PO directly into active FEFO inventory batches,
@@ -217,3 +221,32 @@ def receive_purchase_order(po_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": f"Failed to receive PO: {str(e)}"}), 500
+
+
+@purchases_bp.route("/<int:po_id>", methods=["DELETE"])
+@roles_required("admin", "manager")
+def delete_purchase(po_id):
+    """Cancels/deletes a draft purchase order"""
+    po = db.session.get(Purchase, po_id)
+    if not po:
+        return jsonify({"success": False, "message": "Purchase order not found."}), 404
+    if po.status == "received":
+        return jsonify({"success": False, "message": "Cannot delete an already received purchase order."}), 400
+
+    po_num = po.po_number
+    db.session.delete(po)
+    db.session.commit()
+    return jsonify({"success": True, "message": f"Purchase order {po_num} deleted."}), 200
+
+
+@purchases_bp.route("/export/csv", methods=["GET"])
+def export_purchases_csv_route():
+    """Downloadable purchase orders CSV"""
+    status = request.args.get("status")
+    csv_data = export_purchases_csv(status=status)
+    filename = f"purchases_orders_{date.today().strftime('%Y%m%d')}.csv"
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )

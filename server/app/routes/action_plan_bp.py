@@ -56,3 +56,4 @@ def reset_action_plan(date_str):
         return jsonify({"success": True, "message": "Action plan refreshed from live AI models.", "data": plan}), 200
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+

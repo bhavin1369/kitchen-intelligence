@@ -169,3 +169,4 @@ def get_historical_event_impact() -> Dict[str, Any]:
         "overallAverageLift": round((overall_mult - 1.0) * 100, 1),
         "dishesImpact": results
     }
+

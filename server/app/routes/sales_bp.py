@@ -1,10 +1,11 @@
 from datetime import datetime, timezone, date, timedelta
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, jsonify, g, Response
 from sqlalchemy import func
 from app.extensions import db
 from app.models import Sale, SaleItem, MenuItem
 from app.services.sales_service import process_new_sale, parse_and_import_sales_csv
-from app.utils.auth import jwt_required
+from app.services.reports_service import export_sales_csv
+from app.utils.auth import jwt_required, roles_required
 
 sales_bp = Blueprint("sales_bp", __name__)
 
@@ -174,6 +175,7 @@ def update_sale(sale_id):
 
 
 @sales_bp.route("/<int:sale_id>", methods=["DELETE"])
+@roles_required("admin", "manager")
 def delete_sale(sale_id):
     sale = db.session.get(Sale, sale_id)
     if not sale:
@@ -212,3 +214,22 @@ def upload_sales_csv():
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": f"CSV import error: {str(e)}"}), 500
+
+
+@sales_bp.route("/export/csv", methods=["GET"])
+def export_sales_csv_route():
+    """Downloadable sales history CSV"""
+    start_d_str = request.args.get("startDate")
+    end_d_str = request.args.get("endDate")
+    menu_item_id = request.args.get("menuItemId")
+
+    start_d = datetime.strptime(start_d_str, "%Y-%m-%d").date() if start_d_str else None
+    end_d = datetime.strptime(end_d_str, "%Y-%m-%d").date() if end_d_str else None
+
+    csv_data = export_sales_csv(start_date=start_d, end_date=end_d, menu_item_id=menu_item_id)
+    filename = f"sales_records_{date.today().strftime('%Y%m%d')}.csv"
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )

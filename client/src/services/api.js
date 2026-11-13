@@ -138,4 +138,32 @@ export const actionPlanService = {
   resetPlan: (dateStr) => api.post(`/action-plan/${dateStr}/reset`),
 }
 
+export const reportsService = {
+  getDashboard: () => api.get("/reports/dashboard"),
+  getSalesSummary: () => api.get("/reports/sales"),
+  getFinancialSummary: () => api.get("/reports/financial"),
+  getInventorySummary: () => api.get("/reports/inventory"),
+  triggerBackup: () => api.post("/reports/backup"),
+  getBackups: () => api.get("/reports/backups"),
+  restoreBackup: (data) => api.post("/reports/restore", data),
+  getSalesExportUrl: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return `/api/v1/reports/sales/export/csv${q ? `?${q}` : ""}`
+  },
+  getForecastsExportUrl: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return `/api/v1/reports/forecasts/export/csv${q ? `?${q}` : ""}`
+  },
+  getModelPerformanceExportUrl: () => `/api/v1/reports/model-performance/export/csv`,
+  getInventoryExportUrl: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return `/api/v1/reports/inventory/export/csv${q ? `?${q}` : ""}`
+  },
+  getPurchasesExportUrl: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return `/api/v1/reports/purchases/export/csv${q ? `?${q}` : ""}`
+  },
+  getFinancialExportUrl: () => `/api/v1/reports/financial/export/csv`,
+}
+
 export default api

@@ -48,7 +48,7 @@ def register():
     db.session.add(user)
     db.session.commit()
 
-    token = generate_token(user.id, user.username, user.role)
+    token = generate_token(user.id, user.username, user.role, kitchen_id=user.kitchen_id)
     return jsonify({
         "success": True,
         "message": "User registered successfully.",
@@ -78,7 +78,7 @@ def login():
     if not user.is_active:
         return jsonify({"success": False, "message": "User account has been deactivated."}), 403
 
-    token = generate_token(user.id, user.username, user.role)
+    token = generate_token(user.id, user.username, user.role, kitchen_id=user.kitchen_id)
     return jsonify({
         "success": True,
         "message": "Login successful.",

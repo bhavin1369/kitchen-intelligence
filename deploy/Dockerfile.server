@@ -1,0 +1,28 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies for scientific packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy backend application source
+COPY . .
+
+# Ensure instance directory exists for persistent SQLite database
+RUN mkdir -p instance backups
+
+EXPOSE 5000
+
+ENV FLASK_APP=wsgi.py
+ENV PYTHONPATH=/app
+ENV PORT=5000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--threads", "2", "--timeout", "90", "wsgi:app"]

@@ -233,6 +233,9 @@ class KitchenIntelligenceAPITestCase(unittest.TestCase):
     # 7. Waste Management
     def test_07_waste_management(self):
         tomato = Ingredient.query.filter_by(name="Tomatoes (Ripe)").first()
+        if tomato.current_stock < 5.0:
+            tomato.current_stock = 15.0
+            db.session.commit()
         initial_stock = tomato.current_stock
 
         waste_res = self.client.post("/api/v1/waste", json={

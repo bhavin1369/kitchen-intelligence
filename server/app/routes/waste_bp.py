@@ -2,6 +2,7 @@ from datetime import datetime, date
 from flask import Blueprint, request, jsonify, Response
 from app.extensions import db
 from app.models import WasteRecord, Ingredient, MenuItem, InventoryBatch
+from app.utils.auth import roles_required
 from app.services.waste_service import (
     record_waste_entry,
     get_waste_analytics,
@@ -21,9 +22,14 @@ def record_waste():
     Deducts stock via FEFO for raw ingredients and calculates financial loss.
     """
     data = request.get_json() or {}
-    item_type = data.get("itemType") or data.get("item_type", "ingredient")
-    ing_id = data.get("ingredientId") or data.get("ingredient_id")
-    menu_id = data.get("menuItemId") or data.get("menu_item_id")
+    item_type_raw = data.get("itemType") or data.get("item_type", "ingredient")
+    if str(item_type_raw).lower() in ("dish", "prepared", "prepared_item", "prepared_food"):
+        item_type = "prepared_item"
+    else:
+        item_type = "ingredient"
+
+    ing_id = data.get("ingredientId") or data.get("ingredient_id") or (data.get("itemId") if item_type == "ingredient" else None)
+    menu_id = data.get("menuItemId") or data.get("menu_item_id") or (data.get("itemId") if item_type == "prepared_item" else None)
     item_name = data.get("itemName") or data.get("item_name")
     qty = float(data.get("quantity") or data.get("quantityLost") or 0.0)
     unit = data.get("unit", "kg")
@@ -122,6 +128,7 @@ def update_waste_record(waste_id):
 
 
 @waste_bp.route("/<int:waste_id>", methods=["DELETE"])
+@roles_required("admin", "manager")
 def delete_waste_record(waste_id):
     record = db.session.get(WasteRecord, waste_id)
     if not record:

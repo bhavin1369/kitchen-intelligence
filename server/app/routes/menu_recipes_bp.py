@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models import MenuItem, Recipe, Ingredient
+from app.utils.auth import roles_required
 
 menu_recipes_bp = Blueprint("menu_recipes_bp", __name__)
 
@@ -55,6 +56,7 @@ def get_menu_item(item_id):
 
 
 @menu_recipes_bp.route("/menu", methods=["POST"])
+@roles_required("admin", "manager", "chef")
 def create_menu_item():
     data = request.get_json() or {}
     name = data.get("name", "").strip()
@@ -95,6 +97,7 @@ def create_menu_item():
 
 
 @menu_recipes_bp.route("/menu/<int:item_id>", methods=["PUT"])
+@roles_required("admin", "manager", "chef")
 def update_menu_item(item_id):
     item = db.session.get(MenuItem, item_id)
     if not item:
@@ -129,6 +132,7 @@ def update_menu_item(item_id):
 
 
 @menu_recipes_bp.route("/menu/<int:item_id>", methods=["DELETE"])
+@roles_required("admin", "manager")
 def delete_menu_item(item_id):
     item = db.session.get(MenuItem, item_id)
     if not item:
@@ -177,6 +181,7 @@ def get_recipe_by_dish(menu_item_id):
 
 
 @menu_recipes_bp.route("/recipes", methods=["POST"])
+@roles_required("admin", "manager", "chef")
 def add_ingredient_to_recipe():
     data = request.get_json() or {}
     menu_item_id = data.get("menuItemId") or data.get("menu_item_id")
@@ -226,6 +231,7 @@ def add_ingredient_to_recipe():
 
 
 @menu_recipes_bp.route("/recipes/batch", methods=["POST"])
+@roles_required("admin", "manager", "chef")
 def set_dish_recipes_batch():
     """Allows setting or updating multiple ingredients for a dish BOM at once"""
     data = request.get_json() or {}
@@ -273,6 +279,7 @@ def set_dish_recipes_batch():
 
 
 @menu_recipes_bp.route("/recipes/<int:recipe_id>", methods=["PUT"])
+@roles_required("admin", "manager", "chef")
 def update_recipe(recipe_id):
     recipe = db.session.get(Recipe, recipe_id)
     if not recipe:
@@ -302,6 +309,7 @@ def update_recipe(recipe_id):
 
 
 @menu_recipes_bp.route("/recipes/<int:recipe_id>", methods=["DELETE"])
+@roles_required("admin", "manager", "chef")
 def delete_recipe(recipe_id):
     recipe = db.session.get(Recipe, recipe_id)
     if not recipe:

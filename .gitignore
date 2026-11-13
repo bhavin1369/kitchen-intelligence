@@ -28,6 +28,8 @@ htmlcov/
 *.db-wal
 *.db-shm
 *.db-journal
+*.bak
+server/backups/*.db
 
 # Environment variables & local secrets
 .env

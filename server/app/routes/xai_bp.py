@@ -38,3 +38,4 @@ def model_evaluation():
         return jsonify(data), 200
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+

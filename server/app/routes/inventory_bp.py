@@ -1,8 +1,10 @@
 from datetime import datetime, date
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, jsonify, g, Response
 from app.extensions import db
 from app.models import Ingredient, InventoryBatch, StockMovement
 from app.services.inventory_service import receive_batch, consume_ingredient_fefo, convert_quantity
+from app.services.reports_service import export_inventory_csv
+from app.utils.auth import roles_required
 
 inventory_bp = Blueprint("inventory_bp", __name__)
 
@@ -319,4 +321,17 @@ def get_movements():
         "total": len(movements),
         "data": [m.to_dict() for m in movements]
     }), 200
+
+
+@inventory_bp.route("/export/csv", methods=["GET"])
+def export_inventory_csv_route():
+    """Downloadable inventory stock levels & valuation CSV"""
+    category = request.args.get("category")
+    csv_data = export_inventory_csv(category=category)
+    filename = f"inventory_valuation_{date.today().strftime('%Y%m%d')}.csv"
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 

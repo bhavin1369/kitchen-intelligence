@@ -41,6 +41,10 @@ class Phase6FoodWasteTestCase(unittest.TestCase):
         if not ing:
             ing = Ingredient.query.first()
 
+        if ing.current_stock < 5.0:
+            ing.current_stock = 15.0
+            db.session.commit()
+
         initial_stock = ing.current_stock
         waste_qty = 2.0
         expected_loss = round(waste_qty * ing.unit_cost, 2)

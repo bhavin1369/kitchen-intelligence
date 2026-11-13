@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: ../deploy/Dockerfile.server
+    container_name: kitchen_intel_backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - SECRET_KEY=kitchen-intel-prod-secret-key-32-chars-long
+      - JWT_SECRET_KEY=kitchen-intel-prod-jwt-signing-key-32-chars
+      - DATABASE_PATH=instance/kitchen_intelligence.db
+      - CORS_ORIGINS=http://localhost,http://localhost:80,http://127.0.0.1
+    volumes:
+      - backend_data:/app/instance
+      - backend_backups:/app/backups
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile.client
+    container_name: kitchen_intel_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  backend_data:
+    driver: local
+  backend_backups:
+    driver: local

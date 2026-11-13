@@ -1,13 +1,15 @@
 from datetime import date, datetime, timedelta
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from app.extensions import db
 from app.models import Forecast, MenuItem
+from app.utils.auth import roles_required
 from app.services.forecast_service import (
     generate_forecasts,
     get_model_evaluation,
     train_and_evaluate_models,
     get_calendar_events
 )
+from app.services.reports_service import export_forecasts_csv, export_model_performance_csv
 
 forecasts_bp = Blueprint("forecasts_bp", __name__)
 
@@ -51,6 +53,7 @@ def get_or_generate_forecasts():
 
 @forecasts_bp.route("/train", methods=["POST"])
 @forecasts_bp.route("/retrain", methods=["POST"])
+@roles_required("admin", "manager")
 def retrain_model_endpoint():
     """
     Triggers ML pipeline retraining on historical sales in SQLite.
@@ -113,3 +116,29 @@ def get_calendar_endpoint():
         "total": len(events),
         "data": events
     }), 200
+
+
+@forecasts_bp.route("/export/csv", methods=["GET"])
+def export_forecasts_csv_route():
+    """Downloadable demand forecasts CSV"""
+    days = int(request.args.get("days", 14))
+    menu_item_id = request.args.get("menuItemId")
+    csv_data = export_forecasts_csv(days=days, menu_item_id=menu_item_id)
+    filename = f"demand_forecasts_{date.today().strftime('%Y%m%d')}.csv"
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+
+@forecasts_bp.route("/evaluation/export/csv", methods=["GET"])
+def export_evaluation_csv_route():
+    """Downloadable model evaluation metrics CSV"""
+    csv_data = export_model_performance_csv()
+    filename = f"model_evaluation_{date.today().strftime('%Y%m%d')}.csv"
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
