@@ -70,6 +70,33 @@ def create_app(config_class=Config):
     app.register_blueprint(environmental_bp, url_prefix="/api/v1/environmental")
     app.register_blueprint(action_plan_bp, url_prefix="/api/v1/action-plan")
 
+    # API Root and Service Status Index
+    @app.route("/")
+    @app.route("/api")
+    @app.route("/api/v1")
+    def api_root():
+        return jsonify({
+            "success": True,
+            "service": "Kitchen Intelligence REST API",
+            "version": "1.0.0",
+            "status": "online",
+            "frontend_ui": "http://localhost:5173",
+            "endpoints": {
+                "health": "/api/v1/health",
+                "auth": "/api/v1/auth",
+                "sales": "/api/v1/sales",
+                "menu": "/api/v1/menu",
+                "recipes": "/api/v1/recipes",
+                "inventory": "/api/v1/inventory",
+                "purchases": "/api/v1/purchases",
+                "waste": "/api/v1/waste",
+                "forecasts": "/api/v1/forecasts",
+                "reports": "/api/v1/reports",
+                "environmental": "/api/v1/environmental",
+                "action_plan": "/api/v1/action-plan"
+            }
+        }), 200
+
     # Additional health alias at /api/health
     @app.route("/api/health")
     def api_health():
