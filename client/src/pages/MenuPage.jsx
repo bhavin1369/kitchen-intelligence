@@ -237,17 +237,17 @@ export const MenuPage = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-warm-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-stone-200">
         <div>
-          <div className="flex items-center space-x-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-forest-900 tracking-tight">
+          <div className="flex items-center space-x-2.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
               Menu Management
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-forest-100 text-forest-900 border border-forest-200 uppercase tracking-wider">
-              Live SQLite DB
+            <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-stone-100 text-stone-700 border border-stone-200">
+              Live Catalog
             </span>
           </div>
-          <p className="text-sm text-stone-500 mt-1">
+          <p className="text-xs sm:text-sm text-stone-500 mt-0.5">
             Configure canteen catalog, dish selling prices, prep times, and live POS availability.
           </p>
         </div>
@@ -256,23 +256,23 @@ export const MenuPage = () => {
           <button
             onClick={() => fetchMenuItems(true)}
             disabled={refreshing}
-            className="p-2.5 rounded-lg bg-warm-100 hover:bg-warm-200 text-stone-700 text-xs font-semibold transition flex items-center space-x-1 cursor-pointer"
+            className="p-2 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 text-xs font-medium transition flex items-center space-x-1 cursor-pointer"
             title="Refresh from Database"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-forest-800" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-forest-800" : ""}`} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
           <Link
             to="/recipes"
-            className="px-3.5 py-2.5 rounded-lg bg-warm-100 hover:bg-warm-200 text-stone-700 text-xs font-semibold transition"
+            className="px-3.5 py-2 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 text-xs font-medium transition"
           >
-            Inspect Recipe BOMs →
+            Recipe BOMs →
           </Link>
           <button
             onClick={handleOpenCreateModal}
-            className="px-4 py-2.5 rounded-lg bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold shadow-md transition flex items-center space-x-2 cursor-pointer"
+            className="px-3.5 py-2 rounded-lg bg-forest-900 hover:bg-forest-800 text-white text-xs font-medium shadow-xs transition flex items-center space-x-1.5 cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-gold-400" />
+            <Plus className="w-3.5 h-3.5 text-emerald-300" />
             <span>Add Menu Item</span>
           </button>
         </div>
@@ -280,7 +280,7 @@ export const MenuPage = () => {
 
       {/* Notifications */}
       {successMsg && (
-        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between animate-in fade-in">
+        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between animate-in fade-in">
           <div className="flex items-center space-x-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span className="font-medium">{successMsg}</span>
@@ -292,7 +292,7 @@ export const MenuPage = () => {
       )}
 
       {error && (
-        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-center justify-between animate-in fade-in">
+        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-center justify-between animate-in fade-in">
           <div className="flex items-center space-x-2">
             <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             <span className="font-medium">{error}</span>
@@ -304,28 +304,28 @@ export const MenuPage = () => {
       )}
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Total Menu Items</div>
-          <div className="text-2xl font-bold text-stone-900 mt-2">{totalItems}</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium uppercase tracking-wider text-stone-500">Total Menu Items</div>
+          <div className="text-2xl font-semibold text-stone-900 tracking-tight mt-1.5 font-sans">{totalItems}</div>
           <p className="text-[11px] text-stone-500 mt-1">Canteen catalog entries</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Live in POS</div>
-          <div className="text-2xl font-bold text-forest-900 mt-2">{activeItems}</div>
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium uppercase tracking-wider text-stone-500">Live in POS</div>
+          <div className="text-2xl font-semibold text-stone-900 tracking-tight mt-1.5 font-sans">{activeItems}</div>
           <p className="text-[11px] text-emerald-700 font-medium mt-1">Ready for order taking</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Avg Gross Margin</div>
-          <div className="text-2xl font-bold text-gold-700 mt-2">{avgMargin}%</div>
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium uppercase tracking-wider text-stone-500">Avg Gross Margin</div>
+          <div className="text-2xl font-semibold text-stone-900 tracking-tight mt-1.5 font-sans">{avgMargin}%</div>
           <p className="text-[11px] text-stone-500 mt-1">Calculated from raw ingredient BOM</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Dietary Split</div>
-          <div className="text-2xl font-bold text-stone-900 mt-2">
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium uppercase tracking-wider text-stone-500">Dietary Split</div>
+          <div className="text-2xl font-semibold text-stone-900 tracking-tight mt-1.5 font-sans">
             {vegCount} Veg / {nonVegCount} Non-Veg
           </div>
           <p className="text-[11px] text-stone-500 mt-1">Canteen dietary balance</p>
@@ -333,30 +333,30 @@ export const MenuPage = () => {
       </div>
 
       {/* Search & Category Tabs */}
-      <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card space-y-4">
+      <div className="p-4 rounded-lg bg-white border border-stone-200 space-y-3">
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="relative w-full sm:w-80">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
             <input
               type="text"
               placeholder="Search dishes or categories..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-xs rounded-lg bg-warm-50 border border-warm-200 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-forest-800"
+              className="w-full pl-9 pr-3.5 py-1.5 text-xs rounded-md bg-stone-50 border border-stone-200 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-400"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {/* Status Filter */}
-            <div className="flex items-center space-x-1 bg-warm-100/60 p-1 rounded-lg">
-              <span className="text-stone-500 font-semibold px-1 text-[11px]">Status:</span>
+            <div className="inline-flex items-center space-x-1 bg-stone-100 p-0.5 rounded-md border border-stone-200/60">
+              <span className="text-stone-500 font-medium px-1.5 text-[11px]">Status:</span>
               {["all", "active", "inactive"].map((st) => (
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
-                  className={`px-2.5 py-1 rounded-md capitalize font-medium transition ${
+                  className={`px-2 py-0.5 rounded capitalize text-xs font-medium transition cursor-pointer ${
                     statusFilter === st
-                      ? "bg-forest-900 text-white shadow-xs"
+                      ? "bg-white text-stone-900 shadow-xs font-semibold"
                       : "text-stone-600 hover:text-stone-900"
                   }`}
                 >
@@ -366,28 +366,28 @@ export const MenuPage = () => {
             </div>
 
             {/* Diet Filter */}
-            <div className="flex items-center space-x-1 bg-warm-100/60 p-1 rounded-lg">
-              <span className="text-stone-500 font-semibold px-1 text-[11px]">Diet:</span>
+            <div className="inline-flex items-center space-x-1 bg-stone-100 p-0.5 rounded-md border border-stone-200/60">
+              <span className="text-stone-500 font-medium px-1.5 text-[11px]">Diet:</span>
               <button
                 onClick={() => setDietFilter("all")}
-                className={`px-2.5 py-1 rounded-md font-medium transition ${
-                  dietFilter === "all" ? "bg-forest-900 text-white shadow-xs" : "text-stone-600 hover:text-stone-900"
+                className={`px-2 py-0.5 rounded text-xs font-medium transition cursor-pointer ${
+                  dietFilter === "all" ? "bg-white text-stone-900 shadow-xs font-semibold" : "text-stone-600 hover:text-stone-900"
                 }`}
               >
                 All
               </button>
               <button
                 onClick={() => setDietFilter("veg")}
-                className={`px-2.5 py-1 rounded-md font-medium transition ${
-                  dietFilter === "veg" ? "bg-emerald-700 text-white shadow-xs" : "text-stone-600 hover:text-stone-900"
+                className={`px-2 py-0.5 rounded text-xs font-medium transition cursor-pointer ${
+                  dietFilter === "veg" ? "bg-white text-stone-900 shadow-xs font-semibold" : "text-stone-600 hover:text-stone-900"
                 }`}
               >
                 Veg
               </button>
               <button
                 onClick={() => setDietFilter("nonveg")}
-                className={`px-2.5 py-1 rounded-md font-medium transition ${
-                  dietFilter === "nonveg" ? "bg-amber-700 text-white shadow-xs" : "text-stone-600 hover:text-stone-900"
+                className={`px-2 py-0.5 rounded text-xs font-medium transition cursor-pointer ${
+                  dietFilter === "nonveg" ? "bg-white text-stone-900 shadow-xs font-semibold" : "text-stone-600 hover:text-stone-900"
                 }`}
               >
                 Non-Veg
@@ -397,15 +397,15 @@ export const MenuPage = () => {
         </div>
 
         {/* Category Pill Tabs */}
-        <div className="flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
+        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 text-xs">
           {allCategories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-lg capitalize whitespace-nowrap font-medium transition ${
+              className={`px-2.5 py-1 rounded-md capitalize whitespace-nowrap text-xs font-medium transition cursor-pointer ${
                 selectedCategory === cat
-                  ? "bg-forest-900 text-gold-400 font-semibold shadow-xs"
-                  : "bg-warm-50 text-stone-600 hover:bg-warm-100 border border-warm-200"
+                  ? "bg-stone-900 text-white font-semibold"
+                  : "bg-stone-50 text-stone-600 hover:bg-stone-100 border border-stone-200"
               }`}
             >
               {cat === "all" ? "All Categories" : cat}
@@ -417,30 +417,30 @@ export const MenuPage = () => {
       {/* Menu Cards Grid */}
       {loading ? (
         <div className="py-20 text-center flex flex-col items-center justify-center space-y-3">
-          <Loader2 className="w-8 h-8 text-forest-800 animate-spin" />
-          <p className="text-sm text-stone-500">Loading dishes from database...</p>
+          <Loader2 className="w-6 h-6 text-stone-400 animate-spin" />
+          <p className="text-xs text-stone-500">Loading dishes from database...</p>
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="py-16 text-center bg-white rounded-2xl border border-warm-200 p-8 shadow-card">
-          <UtensilsCrossed className="w-10 h-10 text-stone-300 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-stone-800">No menu items found</h3>
+        <div className="py-16 text-center bg-white rounded-lg border border-stone-200 p-8">
+          <UtensilsCrossed className="w-8 h-8 text-stone-300 mx-auto mb-2" />
+          <h3 className="text-sm font-semibold text-stone-900">No menu items found</h3>
           <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
             Try adjusting your search query, diet filter, or category selector, or add a new menu dish.
           </p>
           <button
             onClick={handleOpenCreateModal}
-            className="mt-4 px-4 py-2 rounded-lg bg-forest-900 text-white text-xs font-semibold"
+            className="mt-3 px-3.5 py-2 rounded-lg bg-forest-900 text-white text-xs font-medium cursor-pointer"
           >
             Create First Dish
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className={`p-5 rounded-2xl bg-white border transition shadow-card hover:shadow-card-hover flex flex-col justify-between ${
-                item.isAvailable ? "border-warm-200" : "border-stone-200 opacity-60 bg-stone-50"
+              className={`p-4 rounded-lg bg-white border transition flex flex-col justify-between ${
+                item.isAvailable ? "border-stone-200 hover:border-stone-300" : "border-stone-200 opacity-60 bg-stone-50"
               }`}
             >
               <div>
@@ -544,7 +544,7 @@ export const MenuPage = () => {
       {/* Add / Edit Menu Item Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-lg w-full border border-warm-200 shadow-2xl p-6 text-stone-800 animate-in fade-in">
+          <div className="bg-white rounded-lg max-w-lg w-full border border-stone-200 shadow-xl p-5 text-stone-800 animate-in fade-in">
             <div className="flex items-center justify-between pb-3 border-b border-warm-200">
               <div>
                 <h3 className="font-bold text-lg text-forest-900">
@@ -689,7 +689,7 @@ export const MenuPage = () => {
       {/* Delete Confirmation Modal */}
       {itemToDelete && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-sm w-full border border-warm-200 shadow-2xl p-6 text-stone-800 animate-in fade-in">
+          <div className="bg-white rounded-lg max-w-sm w-full border border-stone-200 shadow-xl p-5 text-stone-800 animate-in fade-in">
             <h3 className="font-bold text-base text-rose-900">Delete Menu Item</h3>
             <p className="text-xs text-stone-600 mt-2">
               Are you sure you want to delete <strong className="text-stone-900">"{itemToDelete.name}"</strong>?

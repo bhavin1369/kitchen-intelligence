@@ -14,7 +14,6 @@ import {
   Settings,
   LogOut,
   X,
-  Compass,
   ClipboardCheck,
   Leaf
 } from "lucide-react"
@@ -22,16 +21,16 @@ import { useAuth } from "../../context/AuthContext"
 
 export const NAV_ITEMS = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/daily-plan", label: "Daily Action Plan", icon: ClipboardCheck, badge: "Today", badgeType: "emerald" },
-  { to: "/sales", label: "Sales Management", icon: Receipt },
-  { to: "/menu", label: "Menu Management", icon: UtensilsCrossed },
-  { to: "/recipes", label: "Recipe Management", icon: ChefHat },
-  { to: "/forecast", label: "AI Demand Forecasting", icon: TrendingUp },
-  { to: "/inventory", label: "Inventory Management", icon: Boxes, badge: "4 Low", badgeType: "amber" },
-  { to: "/purchase-planner", label: "Purchase Planner", icon: ShoppingCart, badge: "4 Drafts", badgeType: "gold" },
-  { to: "/waste", label: "Food Waste Log", icon: Trash2 },
-  { to: "/ai-recipes", label: "AI Recipe Suggestions", icon: Sparkles, badge: "3 Surplus", badgeType: "urgent" },
-  { to: "/environmental", label: "Eco Impact Tracker", icon: Leaf },
+  { to: "/daily-plan", label: "Daily Action Plan", icon: ClipboardCheck },
+  { to: "/sales", label: "Sales & POS", icon: Receipt },
+  { to: "/menu", label: "Menu Catalog", icon: UtensilsCrossed },
+  { to: "/recipes", label: "Recipe BOM", icon: ChefHat },
+  { to: "/forecast", label: "Demand Forecasting", icon: TrendingUp },
+  { to: "/inventory", label: "Inventory & Batches", icon: Boxes, badge: "4" },
+  { to: "/purchase-planner", label: "Purchase Planner", icon: ShoppingCart },
+  { to: "/waste", label: "Waste Management", icon: Trash2 },
+  { to: "/ai-recipes", label: "Leftover Upcycling", icon: Sparkles, badge: "3" },
+  { to: "/environmental", label: "Eco Impact", icon: Leaf },
   { to: "/analytics", label: "Analytics & Reports", icon: BarChart3 },
   { to: "/settings", label: "Settings", icon: Settings },
 ]
@@ -45,46 +44,43 @@ export const Sidebar = ({ isOpen, onClose }) => {
       {isOpen && (
         <div
           onClick={onClose}
-          className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-40 lg:hidden"
+          className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-40 lg:hidden"
         />
       )}
 
       <aside
-        className={`fixed lg:static top-0 bottom-0 left-0 z-50 w-72 bg-forest-950 text-stone-200 border-r border-forest-900/80 flex flex-col h-screen transition-transform duration-200 ease-in-out ${
+        className={`fixed lg:static top-0 bottom-0 left-0 z-50 w-64 bg-forest-950 text-stone-200 border-r border-forest-900/80 flex flex-col h-screen transition-transform duration-200 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         {/* Brand Header */}
-        <div className="p-5 border-b border-forest-900 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-forest-800 flex items-center justify-center border border-forest-700 shadow-md">
-              <ChefHat className="w-6 h-6 text-gold-400" />
+        <div className="h-16 px-5 border-b border-forest-900 flex items-center justify-between">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 rounded-lg bg-forest-900 flex items-center justify-center border border-forest-800 text-stone-200">
+              <ChefHat className="w-4 h-4 text-emerald-400" />
             </div>
             <div>
-              <div className="flex items-center space-x-1.5">
-                <span className="font-bold text-white text-base tracking-tight font-sans">Kitchen Intel</span>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-gold-500/20 text-gold-400 border border-gold-500/30">
-                  AI v1.0
-                </span>
-              </div>
-              <p className="text-xs text-stone-400 font-medium">SpiceCraft Dining System</p>
+              <span className="font-semibold text-white text-sm tracking-tight font-sans block leading-none">
+                Kitchen Intel
+              </span>
+              <span className="text-[11px] text-stone-400 font-normal">SpiceCraft Operations</span>
             </div>
           </div>
           {/* Close button on mobile */}
           <button
             onClick={onClose}
-            className="lg:hidden p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-forest-900 transition"
+            className="lg:hidden p-1.5 rounded-md text-stone-400 hover:text-white hover:bg-forest-900 transition"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Navigation Section */}
-        <div className="px-4 pt-4 pb-2">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Main Modules</p>
+        <div className="px-4 pt-4 pb-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">Operations</p>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-1 space-y-1 custom-scrollbar">
+        <nav className="flex-1 overflow-y-auto px-2.5 py-1 space-y-0.5 custom-scrollbar">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon
             return (
@@ -96,27 +92,19 @@ export const Sidebar = ({ isOpen, onClose }) => {
                   if (onClose) onClose()
                 }}
                 className={({ isActive }) =>
-                  `flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                  `flex items-center justify-between px-3 py-2 rounded-md text-xs font-medium transition-colors ${
                     isActive
-                      ? "bg-forest-800 text-white font-semibold shadow-sm border-l-4 border-gold-500"
-                      : "text-stone-300 hover:text-white hover:bg-forest-900/70"
+                      ? "bg-forest-900 text-white font-semibold"
+                      : "text-stone-300 hover:text-white hover:bg-forest-900/50"
                   }`
                 }
               >
-                <div className="flex items-center space-x-3">
-                  <Icon className="w-4 h-4 shrink-0 text-stone-400 group-hover:text-gold-400" />
+                <div className="flex items-center space-x-2.5 min-w-0">
+                  <Icon className="w-4 h-4 shrink-0 text-stone-400" />
                   <span className="truncate">{item.label}</span>
                 </div>
                 {item.badge && (
-                  <span
-                    className={`px-1.5 py-0.5 text-[10px] font-bold rounded-full ${
-                      item.badgeType === "urgent"
-                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
-                        : item.badgeType === "gold"
-                        ? "bg-gold-500/20 text-gold-300 border border-gold-500/30"
-                        : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                    }`}
-                  >
+                  <span className="px-1.5 py-0.5 text-[10px] font-mono font-semibold rounded bg-forest-900 text-stone-300 border border-forest-800">
                     {item.badge}
                   </span>
                 )}
@@ -127,23 +115,23 @@ export const Sidebar = ({ isOpen, onClose }) => {
 
         {/* User Footer Profile */}
         {user && (
-          <div className="p-3 border-t border-forest-900 bg-forest-950/80">
-            <div className="flex items-center justify-between p-2.5 rounded-xl bg-forest-900/60 border border-forest-800">
-              <div className="flex items-center space-x-2.5 min-w-0">
-                <div className="w-9 h-9 rounded-full bg-gold-500/20 border border-gold-500/40 text-gold-300 flex items-center justify-center font-bold text-xs uppercase shrink-0">
-                  {user.fullName ? user.fullName.slice(0, 2) : "CK"}
+          <div className="p-3 border-t border-forest-900 bg-forest-950">
+            <div className="flex items-center justify-between p-2 rounded-lg bg-forest-900/60 border border-forest-800">
+              <div className="flex items-center space-x-2 min-w-0">
+                <div className="w-7 h-7 rounded-md bg-forest-800 border border-forest-700 text-emerald-300 flex items-center justify-center font-semibold text-xs shrink-0">
+                  {user.fullName ? user.fullName.slice(0, 2).toUpperCase() : "CK"}
                 </div>
                 <div className="truncate min-w-0">
-                  <p className="text-xs font-semibold text-stone-100 truncate">{user.fullName || user.username}</p>
-                  <p className="text-[10px] text-gold-400 font-medium truncate">{user.role}</p>
+                  <p className="text-xs font-medium text-stone-100 truncate">{user.fullName || user.username}</p>
+                  <p className="text-[10px] text-stone-400 truncate">{user.role}</p>
                 </div>
               </div>
               <button
                 onClick={logout}
                 title="Sign Out"
-                className="p-1.5 rounded-lg text-stone-400 hover:text-rose-300 hover:bg-rose-500/10 transition cursor-pointer shrink-0"
+                className="p-1.5 rounded text-stone-400 hover:text-rose-300 hover:bg-rose-500/10 transition cursor-pointer shrink-0"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

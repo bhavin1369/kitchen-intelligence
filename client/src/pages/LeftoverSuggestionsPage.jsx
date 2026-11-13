@@ -123,18 +123,17 @@ export const LeftoverSuggestionsPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-warm-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-stone-200">
         <div>
           <div className="flex items-center space-x-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-forest-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
               AI Recipe & Surplus Upcycling
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gold-100 text-gold-900 border border-gold-300 flex items-center space-x-1">
-              <Sparkles className="w-3.5 h-3.5 text-gold-600" />
+            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-stone-100 text-stone-700 border border-stone-200 flex items-center space-x-1 uppercase tracking-wider">
               <span>Zero-Waste Culinary Engine</span>
             </span>
           </div>
-          <p className="text-sm text-stone-500 mt-1">
+          <p className="text-xs text-stone-500 mt-1">
             Transform expiring surplus ingredients into high-margin daily specials before they spoil.
           </p>
         </div>
@@ -145,17 +144,17 @@ export const LeftoverSuggestionsPage = () => {
             loadData()
           }}
           disabled={refreshing}
-          className="px-3.5 py-2 rounded-lg bg-warm-100 hover:bg-warm-200 text-stone-700 text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer self-start sm:self-auto"
+          className="px-3 py-2 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 text-xs font-medium transition flex items-center space-x-1.5 cursor-pointer self-start sm:self-auto"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-forest-700" : ""}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-stone-900" : ""}`} />
           <span>Refresh Suggestions</span>
         </button>
       </div>
 
       {/* POS Notification */}
       {pushedSpecial && (
-        <div className="p-4 rounded-xl bg-forest-50 border border-forest-200 text-xs text-forest-900 flex items-center space-x-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 text-forest-700 shrink-0" />
+        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center space-x-2 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>
             <strong>Pushed to POS:</strong> <em>"{pushedSpecial}"</em> has been added to today's Daily Specials board with priority kitchen display!
           </span>
@@ -163,7 +162,7 @@ export const LeftoverSuggestionsPage = () => {
       )}
 
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center space-x-2">
+        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center space-x-2">
           <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
           <span>{error}</span>
         </div>
@@ -171,24 +170,24 @@ export const LeftoverSuggestionsPage = () => {
 
       {/* ===================== FOOD SAFETY GUARDRAIL BANNER ===================== */}
       {safetyWarnings.length > 0 && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-300 text-xs space-y-2">
-          <div className="flex items-center space-x-2 text-rose-900 font-bold">
+        <div className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-xs space-y-2">
+          <div className="flex items-center space-x-2 text-rose-900 font-semibold">
             <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" />
             <span>Food Safety Violation Guardrail Active ({safetyWarnings.length} Expired Batches Blocked)</span>
           </div>
-          <p className="text-rose-800">
+          <p className="text-rose-800 text-[11px]">
             Strict kitchen safety policy enforces that <strong>expired ingredients are never recommended or cooked</strong> under any circumstances.
           </p>
           <div className="flex flex-wrap gap-2 pt-1">
             {safetyWarnings.map((w, idx) => (
               <div
                 key={idx}
-                className="bg-white/80 px-2.5 py-1 rounded-lg border border-rose-200 text-[11px] text-rose-900 flex items-center space-x-2"
+                className="bg-white px-2.5 py-1 rounded-md border border-rose-200 text-[11px] text-rose-900 flex items-center space-x-2"
               >
                 <span><strong>{w.ingredient}</strong> (Batch: {w.batchNumber}) — Expired {w.expiredOn}</span>
                 <button
                   onClick={() => navigate("/waste")}
-                  className="text-[10px] underline text-rose-700 hover:text-rose-900 font-bold cursor-pointer"
+                  className="text-[10px] underline text-rose-700 hover:text-rose-900 font-semibold cursor-pointer"
                 >
                   Log & Discard
                 </button>
@@ -200,9 +199,9 @@ export const LeftoverSuggestionsPage = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Surplus at Risk</div>
-          <div className="text-2xl font-bold text-rose-600 mt-2">
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wider">Surplus at Risk</div>
+          <div className="text-2xl font-bold text-rose-700 mt-1 font-mono">
             ₹{totalValueAtRisk.toLocaleString("en-IN")}
           </div>
           <p className="text-[11px] text-rose-700 font-medium mt-1">
@@ -210,9 +209,9 @@ export const LeftoverSuggestionsPage = () => {
           </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Potential Specials Revenue</div>
-          <div className="text-2xl font-bold text-forest-900 mt-2">
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wider">Potential Specials Revenue</div>
+          <div className="text-2xl font-bold text-stone-900 mt-1 font-mono">
             ₹{potentialRevenue.toLocaleString("en-IN")}
           </div>
           <p className="text-[11px] text-stone-500 mt-1">
@@ -220,9 +219,9 @@ export const LeftoverSuggestionsPage = () => {
           </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Active Surplus SKUs</div>
-          <div className="text-2xl font-bold text-stone-900 mt-2">
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wider">Active Surplus SKUs</div>
+          <div className="text-2xl font-bold text-stone-900 mt-1 font-mono">
             {surplusIngredients.length} Ingredients
           </div>
           <p className="text-[11px] text-emerald-700 font-medium mt-1">
@@ -230,9 +229,9 @@ export const LeftoverSuggestionsPage = () => {
           </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Avg Specials Margin</div>
-          <div className="text-2xl font-bold text-gold-700 mt-2">{avgMargin}%</div>
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wider">Avg Specials Margin</div>
+          <div className="text-2xl font-bold text-stone-900 mt-1 font-mono">{avgMargin}%</div>
           <p className="text-[11px] text-stone-500 mt-1">
             Higher gross profitability than standard menu
           </p>
@@ -240,9 +239,9 @@ export const LeftoverSuggestionsPage = () => {
       </div>
 
       {/* Near-Expiry Surplus Showcase */}
-      <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200 text-stone-900 space-y-3">
+      <div className="p-4 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 text-amber-900 font-bold text-xs uppercase tracking-wider">
+          <div className="flex items-center space-x-2 text-stone-800 font-semibold text-xs">
             <AlertTriangle className="w-4 h-4 text-amber-600" />
             <span>Priority Surplus Ingredients Needing Upcycling (Next 24 - 72 Hours)</span>
           </div>
@@ -250,7 +249,7 @@ export const LeftoverSuggestionsPage = () => {
         </div>
 
         {surplusIngredients.length === 0 ? (
-          <div className="p-4 text-center text-xs text-stone-500 bg-white/70 rounded-xl">
+          <div className="p-4 text-center text-xs text-stone-500 bg-white rounded-lg border border-stone-200">
             No ingredients currently in immediate danger of expiration!
           </div>
         ) : (
@@ -258,10 +257,10 @@ export const LeftoverSuggestionsPage = () => {
             {surplusIngredients.map((ing) => (
               <div
                 key={ing.id}
-                className="p-3 rounded-xl bg-white border border-amber-200/80 shadow-xs flex flex-col justify-between"
+                className="p-3 rounded-lg bg-white border border-stone-200 flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between font-bold text-stone-900">
+                  <div className="flex items-center justify-between font-semibold text-stone-900">
                     <span>{ing.name}</span>
                     <span className="text-amber-800 font-mono text-[11px]">
                       {ing.quantity} {ing.unit}
@@ -271,8 +270,8 @@ export const LeftoverSuggestionsPage = () => {
                     Category: {ing.category}
                   </div>
                 </div>
-                <div className="mt-2 pt-2 border-t border-amber-100 flex items-center justify-between text-[11px]">
-                  <span className="text-amber-800 font-semibold">
+                <div className="mt-2 pt-2 border-t border-stone-100 flex items-center justify-between text-[11px]">
+                  <span className="text-amber-800 font-medium">
                     Expires {ing.earliestExpiry ? ing.earliestExpiry.slice(5) : "soon"}
                   </span>
                   <span className="font-mono text-stone-600">₹{ing.unitCost}/{ing.unit}</span>
@@ -284,25 +283,25 @@ export const LeftoverSuggestionsPage = () => {
       </div>
 
       {/* AI Recipe Generator Prompt Bar */}
-      <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
+      <div className="p-3.5 rounded-lg bg-white border border-stone-200">
         <form onSubmit={handleGenerateCustom} className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Sparkles className="w-4 h-4 text-gold-600 absolute left-3.5 top-3" />
+            <Sparkles className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
             <input
               type="text"
               placeholder="Type any surplus ingredient (e.g. Cooked Basmati Rice, Mint Leaves, Curd)..."
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-xs rounded-lg bg-warm-50 border border-warm-200 text-stone-900 placeholder-stone-400 focus:outline-hidden focus:border-forest-800"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-stone-50 border border-stone-200 text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-stone-400"
             />
           </div>
           <button
             type="submit"
             disabled={isGenerating || !customPrompt}
-            className="px-4 py-2 rounded-lg bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold shadow transition flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-50"
+            className="px-3.5 py-2 rounded-lg bg-forest-900 hover:bg-forest-800 text-white text-xs font-medium shadow-xs transition flex items-center justify-center space-x-1.5 cursor-pointer disabled:opacity-50"
           >
             {isGenerating ? (
-              <div className="w-4 h-4 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
+              <div className="w-3.5 h-3.5 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
                 <Flame className="w-3.5 h-3.5 text-gold-400" />
@@ -314,36 +313,36 @@ export const LeftoverSuggestionsPage = () => {
       </div>
 
       {/* Suggested Recipe Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {recipes.map((recipe) => (
           <div
             key={recipe.id}
-            className="p-6 rounded-2xl bg-white border border-warm-200 shadow-card hover:shadow-card-hover transition flex flex-col justify-between"
+            className="p-5 rounded-lg bg-white border border-stone-200 hover:border-stone-300 transition flex flex-col justify-between"
           >
             <div>
               <div className="flex items-start justify-between gap-2">
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-forest-50 text-forest-800 border border-forest-200">
+                <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
                   {recipe.feasibilityScore}% Feasibility Score
                 </span>
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-stone-100 text-stone-700 border border-stone-200">
                   Rescues: {recipe.targetIngredient}
                 </span>
               </div>
 
-              <h3 className="font-bold text-lg text-stone-900 mt-3">{recipe.title}</h3>
+              <h3 className="font-semibold text-base text-stone-900 mt-2.5">{recipe.title}</h3>
               <p className="text-xs text-stone-600 mt-1 leading-relaxed">{recipe.chefNotes}</p>
 
               {/* Pantry match breakdown */}
-              <div className="mt-4 p-3 rounded-xl bg-warm-50 border border-warm-100 text-xs space-y-2">
-                <div className="font-semibold text-stone-700 flex items-center space-x-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-forest-700" />
+              <div className="mt-3.5 p-3 rounded-lg bg-stone-50 border border-stone-200 text-xs space-y-2">
+                <div className="font-medium text-stone-700 flex items-center space-x-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                   <span>In-Stock Pantry Matches:</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {(recipe.availablePantry || []).map((ing, i) => (
                     <span
                       key={i}
-                      className="px-2 py-0.5 rounded-md bg-white border border-warm-200 text-[11px] text-stone-700"
+                      className="px-2 py-0.5 rounded-md bg-white border border-stone-200 text-[11px] text-stone-700"
                     >
                       {ing}
                     </span>
@@ -351,26 +350,26 @@ export const LeftoverSuggestionsPage = () => {
                 </div>
 
                 {recipe.missingIngredients && recipe.missingIngredients.length > 0 && (
-                  <div className="text-[11px] text-amber-700 font-medium pt-1 border-t border-warm-200">
+                  <div className="text-[11px] text-amber-800 font-medium pt-1 border-t border-stone-200">
                     Missing Ingredients: {recipe.missingIngredients.join(", ")}
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-warm-100">
-              <div className="grid grid-cols-3 gap-2 text-center text-xs mb-4">
-                <div className="p-2 rounded-lg bg-warm-50 border border-warm-100">
-                  <div className="text-[10px] text-stone-400 uppercase font-semibold">Suggested Price</div>
-                  <div className="font-bold text-stone-900 mt-0.5">₹{recipe.sellingPrice}</div>
+            <div className="mt-4 pt-3.5 border-t border-stone-100">
+              <div className="grid grid-cols-3 gap-2 text-center text-xs mb-3.5">
+                <div className="p-2 rounded-lg bg-stone-50 border border-stone-200">
+                  <div className="text-[10px] text-stone-500 uppercase font-medium">Suggested Price</div>
+                  <div className="font-bold text-stone-900 font-mono mt-0.5">₹{recipe.sellingPrice}</div>
                 </div>
-                <div className="p-2 rounded-lg bg-warm-50 border border-warm-100">
-                  <div className="text-[10px] text-stone-400 uppercase font-semibold">Est. Food Cost</div>
-                  <div className="font-bold text-stone-700 mt-0.5">₹{recipe.foodCost}</div>
+                <div className="p-2 rounded-lg bg-stone-50 border border-stone-200">
+                  <div className="text-[10px] text-stone-500 uppercase font-medium">Est. Food Cost</div>
+                  <div className="font-semibold text-stone-700 font-mono mt-0.5">₹{recipe.foodCost}</div>
                 </div>
-                <div className="p-2 rounded-lg bg-forest-50 border border-forest-100">
-                  <div className="text-[10px] text-forest-700 uppercase font-semibold">Gross Margin</div>
-                  <div className="font-bold text-forest-900 mt-0.5">{recipe.marginPercent}%</div>
+                <div className="p-2 rounded-lg bg-emerald-50/50 border border-emerald-200">
+                  <div className="text-[10px] text-emerald-800 uppercase font-medium">Gross Margin</div>
+                  <div className="font-bold text-emerald-900 font-mono mt-0.5">{recipe.marginPercent}%</div>
                 </div>
               </div>
 
@@ -382,7 +381,7 @@ export const LeftoverSuggestionsPage = () => {
 
                 <button
                   onClick={() => handlePushSpecial(recipe.title)}
-                  className="px-4 py-2 rounded-lg bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold shadow transition flex items-center space-x-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-lg bg-forest-900 hover:bg-forest-800 text-white text-xs font-medium shadow-xs transition flex items-center space-x-1.5 cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5 text-gold-400" />
                   <span>Push to Daily Specials</span>
@@ -390,7 +389,7 @@ export const LeftoverSuggestionsPage = () => {
               </div>
 
               {/* Food safety certification badge */}
-              <div className="mt-3 pt-2 border-t border-warm-100 flex items-center justify-between text-[10px] text-stone-400">
+              <div className="mt-3 pt-2 border-t border-stone-100 flex items-center justify-between text-[10px] text-stone-400">
                 <span className="flex items-center space-x-1 text-emerald-700 font-medium">
                   <ShieldCheck className="w-3 h-3 text-emerald-600" />
                   <span>100% Food-Safety Compliant</span>

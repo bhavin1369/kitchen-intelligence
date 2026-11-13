@@ -240,17 +240,17 @@ export const InventoryPage = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-warm-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-stone-200">
         <div>
           <div className="flex items-center space-x-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-forest-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
               Smart Inventory Management
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-forest-100 text-forest-900 border border-forest-200 uppercase tracking-wider">
+            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-stone-100 text-stone-600 border border-stone-200 uppercase tracking-wider">
               FEFO Enforced
             </span>
           </div>
-          <p className="text-sm text-stone-500 mt-1">
+          <p className="text-xs text-stone-500 mt-1">
             Real-time usable stock, batch expiry tracking, and First-Expired, First-Out (FEFO) consumption audits.
           </p>
         </div>
@@ -259,10 +259,10 @@ export const InventoryPage = () => {
           <button
             onClick={() => loadInventoryData(true)}
             disabled={refreshing}
-            className="p-2.5 rounded-lg bg-warm-100 hover:bg-warm-200 text-stone-700 text-xs font-semibold transition flex items-center space-x-1 cursor-pointer"
+            className="p-2 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 text-xs font-medium transition flex items-center space-x-1 cursor-pointer"
             title="Refresh from Database"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-forest-800" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-stone-900" : ""}`} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
 
@@ -275,17 +275,17 @@ export const InventoryPage = () => {
               }
               setShowConsumeModal(true)
             }}
-            className="px-3 py-2.5 rounded-lg bg-warm-100 hover:bg-warm-200 text-stone-700 text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer"
+            className="px-3 py-2 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 text-xs font-medium transition flex items-center space-x-1.5 cursor-pointer"
           >
-            <TrendingDown className="w-4 h-4 text-amber-700" />
+            <TrendingDown className="w-3.5 h-3.5 text-stone-500" />
             <span>Record Consumption</span>
           </button>
 
           <button
             onClick={() => handleOpenReceiveModal()}
-            className="px-4 py-2.5 rounded-lg bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold shadow-md transition flex items-center space-x-2 cursor-pointer"
+            className="px-3.5 py-2 rounded-lg bg-forest-900 hover:bg-forest-800 text-white text-xs font-medium shadow-xs transition flex items-center space-x-1.5 cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-gold-400" />
+            <Plus className="w-3.5 h-3.5 text-gold-400" />
             <span>Receive New Batch (Stock-In)</span>
           </button>
         </div>
@@ -293,7 +293,7 @@ export const InventoryPage = () => {
 
       {/* Notifications */}
       {successMsg && (
-        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between animate-in fade-in">
+        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between animate-in fade-in">
           <div className="flex items-center space-x-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span className="font-medium">{successMsg}</span>
@@ -305,7 +305,7 @@ export const InventoryPage = () => {
       )}
 
       {error && (
-        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-center justify-between animate-in fade-in">
+        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-center justify-between animate-in fade-in">
           <div className="flex items-center space-x-2">
             <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             <span className="font-medium">{error}</span>
@@ -318,40 +318,40 @@ export const InventoryPage = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Total Usable Valuation</div>
-          <div className="text-2xl font-bold text-forest-900 mt-2">
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wider">Total Usable Valuation</div>
+          <div className="text-2xl font-bold text-stone-900 mt-1 font-mono">
             ₹{Math.round(totalValuation).toLocaleString("en-IN")}
           </div>
           <p className="text-[11px] text-stone-500 mt-1">{items.length} Active Raw Ingredients</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Low Stock SKUs</div>
-          <div className="text-2xl font-bold text-amber-700 mt-2">{lowStockCount} Items</div>
-          <p className="text-[11px] text-amber-800 font-medium mt-1">Below safety reorder threshold</p>
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wider">Low Stock SKUs</div>
+          <div className="text-2xl font-bold text-amber-700 mt-1 font-mono">{lowStockCount} Items</div>
+          <p className="text-[11px] text-amber-700 font-medium mt-1">Below safety reorder threshold</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Near-Expiry Batches</div>
-          <div className="text-2xl font-bold text-rose-600 mt-2">{nearExpiryBatches.length} Batches</div>
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wider">Near-Expiry Batches</div>
+          <div className="text-2xl font-bold text-rose-700 mt-1 font-mono">{nearExpiryBatches.length} Batches</div>
           <p className="text-[11px] text-rose-700 font-medium mt-1">Within 48h shelf life window</p>
         </div>
 
-        <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider">FEFO Integrity</div>
-          <div className="text-2xl font-bold text-emerald-700 mt-2">100% Active</div>
+        <div className="p-4 rounded-lg bg-white border border-stone-200">
+          <div className="text-[11px] font-medium text-stone-500 uppercase tracking-wider">FEFO Integrity</div>
+          <div className="text-2xl font-bold text-emerald-700 mt-1">100% Active</div>
           <p className="text-[11px] text-stone-500 mt-1">Oldest non-expired batch consumed first</p>
         </div>
       </div>
 
       {/* View Mode Navigation Tabs */}
-      <div className="flex border-b border-warm-200 text-xs font-semibold">
+      <div className="flex border-b border-stone-200 text-xs font-medium">
         <button
           onClick={() => setActiveTab("inventory")}
           className={`pb-3 px-4 border-b-2 transition flex items-center space-x-1.5 ${
             activeTab === "inventory"
-              ? "border-forest-900 text-forest-900 font-bold"
+              ? "border-stone-900 text-stone-900 font-semibold"
               : "border-transparent text-stone-500 hover:text-stone-800"
           }`}
         >
@@ -363,7 +363,7 @@ export const InventoryPage = () => {
           onClick={() => setActiveTab("batches")}
           className={`pb-3 px-4 border-b-2 transition flex items-center space-x-1.5 ${
             activeTab === "batches"
-              ? "border-forest-900 text-forest-900 font-bold"
+              ? "border-stone-900 text-stone-900 font-semibold"
               : "border-transparent text-stone-500 hover:text-stone-800"
           }`}
         >
@@ -375,7 +375,7 @@ export const InventoryPage = () => {
           onClick={() => setActiveTab("movements")}
           className={`pb-3 px-4 border-b-2 transition flex items-center space-x-1.5 ${
             activeTab === "movements"
-              ? "border-forest-900 text-forest-900 font-bold"
+              ? "border-stone-900 text-stone-900 font-semibold"
               : "border-transparent text-stone-500 hover:text-stone-800"
           }`}
         >
@@ -383,63 +383,64 @@ export const InventoryPage = () => {
           <span>Stock Movement Audit Trail ({movements.length})</span>
         </button>
       </div>
-
       {/* TAB 1: USABLE INVENTORY STOCK */}
       {activeTab === "inventory" && (
         <div className="space-y-4">
           {/* Controls: Search & Category Tabs */}
-          <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card space-y-4">
+          <div className="p-4 rounded-lg bg-white border border-stone-200 space-y-3">
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
               <div className="relative w-full sm:w-80">
-                <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
                 <input
                   type="text"
                   placeholder="Search by ingredient, SKU, or supplier..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 text-xs rounded-lg bg-warm-50 border border-warm-200 text-stone-900 placeholder-stone-400 focus:outline-none focus:border-forest-800"
+                  className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-stone-50 border border-stone-200 text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-stone-400"
                 />
               </div>
 
-              <div className="flex items-center space-x-2 text-xs">
-                <span className="text-stone-500 font-semibold">Stock Status:</span>
-                <button
-                  onClick={() => setStatusFilter("all")}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                    statusFilter === "all" ? "bg-forest-900 text-white" : "bg-warm-100 text-stone-700"
-                  }`}
-                >
-                  All SKUs
-                </button>
-                <button
-                  onClick={() => setStatusFilter("low")}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                    statusFilter === "low" ? "bg-amber-600 text-white" : "bg-warm-100 text-stone-700"
-                  }`}
-                >
-                  Low Stock Only
-                </button>
-                <button
-                  onClick={() => setStatusFilter("out")}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition ${
-                    statusFilter === "out" ? "bg-rose-700 text-white" : "bg-warm-100 text-stone-700"
-                  }`}
-                >
-                  Out of Stock
-                </button>
+              <div className="flex items-center space-x-1.5 text-xs">
+                <span className="text-stone-500 font-medium text-[11px]">Filter:</span>
+                <div className="inline-flex bg-stone-100 p-0.5 rounded-lg">
+                  <button
+                    onClick={() => setStatusFilter("all")}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition cursor-pointer ${
+                      statusFilter === "all" ? "bg-white text-stone-900 shadow-xs" : "text-stone-600 hover:text-stone-900"
+                    }`}
+                  >
+                    All SKUs
+                  </button>
+                  <button
+                    onClick={() => setStatusFilter("low")}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition cursor-pointer ${
+                      statusFilter === "low" ? "bg-white text-amber-800 shadow-xs font-semibold" : "text-stone-600 hover:text-stone-900"
+                    }`}
+                  >
+                    Low Stock
+                  </button>
+                  <button
+                    onClick={() => setStatusFilter("out")}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition cursor-pointer ${
+                      statusFilter === "out" ? "bg-white text-rose-800 shadow-xs font-semibold" : "text-stone-600 hover:text-stone-900"
+                    }`}
+                  >
+                    Out of Stock
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Category Pills */}
-            <div className="flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
+            <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 text-xs">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg whitespace-nowrap font-medium transition ${
+                  className={`px-2.5 py-1 rounded-md whitespace-nowrap text-xs transition cursor-pointer ${
                     selectedCategory === cat
-                      ? "bg-forest-900 text-gold-400 font-semibold shadow-xs"
-                      : "bg-warm-50 text-stone-600 hover:bg-warm-100 border border-warm-200"
+                      ? "bg-stone-900 text-white font-medium shadow-xs"
+                      : "bg-white text-stone-600 hover:bg-stone-50 border border-stone-200 font-normal"
                   }`}
                 >
                   {cat === "all" ? "All Categories" : cat}
@@ -449,29 +450,29 @@ export const InventoryPage = () => {
           </div>
 
           {/* Main Inventory Table */}
-          <div className="rounded-2xl bg-white border border-warm-200 shadow-card overflow-hidden">
+          <div className="rounded-lg bg-white border border-stone-200 overflow-hidden">
             {loading ? (
               <div className="py-20 text-center flex flex-col items-center justify-center space-y-3">
                 <Loader2 className="w-8 h-8 text-forest-800 animate-spin" />
-                <p className="text-sm text-stone-500">Loading live inventory from SQLite...</p>
+                <p className="text-xs text-stone-500">Loading live inventory from SQLite...</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="bg-warm-100/70 border-b border-warm-200 text-stone-600 uppercase tracking-wider text-[11px] font-semibold">
+                    <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 uppercase tracking-wider text-[11px] font-semibold">
                       <th className="py-3 px-4">SKU Code</th>
                       <th className="py-3 px-4">Ingredient Name</th>
                       <th className="py-3 px-4">Category</th>
-                      <th className="py-3 px-4 font-bold text-forest-900">Current Usable Stock</th>
-                      <th className="py-3 px-4">Safety Reorder Point</th>
-                      <th className="py-3 px-4">Unit Cost</th>
-                      <th className="py-3 px-4">Total Value</th>
-                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4 text-right">Current Usable Stock</th>
+                      <th className="py-3 px-4 text-right">Reorder Point</th>
+                      <th className="py-3 px-4 text-right">Unit Cost</th>
+                      <th className="py-3 px-4 text-right">Total Value</th>
+                      <th className="py-3 px-4 text-center">Status</th>
                       <th className="py-3 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-warm-100 text-stone-800">
+                  <tbody className="divide-y divide-stone-100 text-stone-800">
                     {filteredItems.length === 0 ? (
                       <tr>
                         <td colSpan={9} className="py-10 text-center text-stone-400">
@@ -486,35 +487,35 @@ export const InventoryPage = () => {
                         const ingBatches = batches.filter((b) => b.ingredientId === item.id)
 
                         return (
-                          <tr key={item.id} className="hover:bg-warm-50/70 transition">
-                            <td className="py-3 px-4 font-mono font-bold text-stone-600">{item.sku}</td>
+                          <tr key={item.id} className="hover:bg-stone-50/70 transition">
+                            <td className="py-3 px-4 font-mono font-medium text-stone-600">{item.sku}</td>
                             <td className="py-3 px-4 font-semibold text-stone-900">
                               <div>{item.name}</div>
-                              <div className="text-[10px] text-stone-400">{item.preferredSupplier}</div>
+                              <div className="text-[10px] text-stone-400 font-normal">{item.preferredSupplier}</div>
                             </td>
                             <td className="py-3 px-4 text-stone-500">{item.category}</td>
-                            <td className="py-3 px-4 font-mono font-bold text-stone-900 text-sm">
+                            <td className="py-3 px-4 font-mono font-semibold text-stone-900 text-right">
                               {item.usableStock !== undefined ? item.usableStock : item.currentStock}{" "}
                               <span className="text-xs font-normal text-stone-500">{item.unit}</span>
                             </td>
-                            <td className="py-3 px-4 font-mono text-stone-600">
+                            <td className="py-3 px-4 font-mono text-stone-600 text-right">
                               {item.reorderPoint} {item.unit}
                             </td>
-                            <td className="py-3 px-4 font-mono">₹{item.unitCost}</td>
-                            <td className="py-3 px-4 font-bold text-forest-900">
+                            <td className="py-3 px-4 font-mono text-stone-600 text-right">₹{item.unitCost}</td>
+                            <td className="py-3 px-4 font-mono font-semibold text-stone-900 text-right">
                               ₹{itemTotalVal.toLocaleString()}
                             </td>
-                            <td className="py-3 px-4">
+                            <td className="py-3 px-4 text-center">
                               {isOut ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
                                   Out of Stock
                                 </span>
                               ) : isLow ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-800 border border-amber-200">
                                   Low Stock
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-forest-100 text-forest-800 border border-forest-200">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                                   Sufficient
                                 </span>
                               )}
@@ -522,14 +523,14 @@ export const InventoryPage = () => {
                             <td className="py-3 px-4 text-right space-x-1.5">
                               <button
                                 onClick={() => setSelectedIngredientForBatches(item)}
-                                className="px-2 py-1 rounded bg-warm-100 hover:bg-warm-200 text-stone-800 text-[11px] font-semibold transition"
+                                className="px-2 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-700 text-[11px] font-medium transition cursor-pointer"
                                 title="Inspect FEFO Batches"
                               >
                                 Batches ({ingBatches.length})
                               </button>
                               <button
                                 onClick={() => handleOpenReceiveModal(item)}
-                                className="p-1 rounded text-forest-800 hover:bg-forest-100"
+                                className="p-1 rounded-md text-stone-600 hover:text-stone-900 hover:bg-stone-100 cursor-pointer"
                                 title="Stock In New Batch"
                               >
                                 <Plus className="w-3.5 h-3.5" />
@@ -541,7 +542,7 @@ export const InventoryPage = () => {
                                   setAdjustNotes("Physical count audit")
                                   setShowAdjustModal(true)
                                 }}
-                                className="p-1 rounded text-stone-500 hover:bg-warm-100"
+                                className="p-1 rounded-md text-stone-600 hover:text-stone-900 hover:bg-stone-100 cursor-pointer"
                                 title="Audit / Stock Adjustment"
                               >
                                 <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -562,10 +563,10 @@ export const InventoryPage = () => {
       {/* TAB 2: FEFO BATCHES & EXPIRY SENTINEL */}
       {activeTab === "batches" && (
         <div className="space-y-4">
-          <div className="p-4 rounded-xl bg-white border border-warm-200 shadow-card flex items-center justify-between">
+          <div className="p-4 rounded-lg bg-white border border-stone-200 flex items-center justify-between">
             <div>
               <h2 className="text-base font-bold text-stone-900 flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-forest-700" />
+                <Clock className="w-4 h-4 text-stone-700" />
                 <span>FEFO Batch Expiry Sentinel</span>
               </h2>
               <p className="text-xs text-stone-500">
@@ -575,7 +576,7 @@ export const InventoryPage = () => {
 
             <button
               onClick={() => handleOpenReceiveModal()}
-              className="px-3.5 py-1.5 rounded-lg bg-forest-900 text-white text-xs font-semibold"
+              className="px-3.5 py-1.5 rounded-lg bg-forest-900 hover:bg-forest-800 text-white text-xs font-medium cursor-pointer"
             >
               + Stock In Batch
             </button>
@@ -590,27 +591,27 @@ export const InventoryPage = () => {
               return (
                 <div
                   key={batch.id}
-                  className={`p-4 rounded-xl border transition ${
+                  className={`p-3.5 rounded-lg border transition ${
                     isExp
-                      ? "bg-stone-100 border-stone-300 text-stone-600 opacity-60"
+                      ? "bg-stone-50 border-stone-200 text-stone-500 opacity-75"
                       : isCrit
-                      ? "bg-rose-50/80 border-rose-200 text-rose-950"
+                      ? "bg-white border-rose-300"
                       : isWarn
-                      ? "bg-amber-50/80 border-amber-200 text-amber-950"
-                      : "bg-white border-warm-200 text-stone-800"
+                      ? "bg-white border-amber-300"
+                      : "bg-white border-stone-200 text-stone-800"
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono font-bold">{batch.batchNumber}</span>
+                    <span className="font-mono font-semibold text-stone-900">{batch.batchNumber}</span>
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                      className={`px-2 py-0.5 rounded text-[10px] font-medium ${
                         isExp
-                          ? "bg-stone-500 text-white"
+                          ? "bg-stone-100 text-stone-600 border border-stone-200"
                           : isCrit
-                          ? "bg-rose-600 text-white"
+                          ? "bg-rose-50 text-rose-700 border border-rose-200"
                           : isWarn
-                          ? "bg-amber-500 text-white"
-                          : "bg-emerald-600 text-white"
+                          ? "bg-amber-50 text-amber-800 border border-amber-200"
+                          : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                       }`}
                     >
                       {isExp
@@ -621,16 +622,16 @@ export const InventoryPage = () => {
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-sm mt-2">{batch.ingredientName}</h3>
+                  <h3 className="font-semibold text-sm text-stone-900 mt-2">{batch.ingredientName}</h3>
                   <div className="text-xs text-stone-600 mt-1 space-y-0.5">
                     <div>
-                      Remaining: <strong>{batch.quantityRemaining} {batch.unit}</strong>{" "}
+                      Remaining: <strong className="font-mono text-stone-900">{batch.quantityRemaining} {batch.unit}</strong>{" "}
                       <span className="text-[10px] text-stone-400">/ {batch.initialQuantity} received</span>
                     </div>
                     <div>Expiry Date: <span className="font-mono">{batch.expiryDate}</span></div>
                     <div>Supplier: {batch.supplierName}</div>
                     {batch.unitCost > 0 && (
-                      <div className="text-[11px] text-stone-500">
+                      <div className="text-[11px] text-stone-500 font-mono">
                         Unit Cost: ₹{batch.unitCost}/{batch.unit}
                       </div>
                     )}
@@ -644,8 +645,8 @@ export const InventoryPage = () => {
 
       {/* TAB 3: STOCK MOVEMENT AUDIT TRAIL */}
       {activeTab === "movements" && (
-        <div className="rounded-2xl bg-white border border-warm-200 shadow-card overflow-hidden">
-          <div className="p-4 border-b border-warm-100 flex items-center justify-between">
+        <div className="rounded-lg bg-white border border-stone-200 overflow-hidden">
+          <div className="p-4 border-b border-stone-200 flex items-center justify-between">
             <div>
               <h3 className="font-bold text-stone-900 text-sm">
                 Stock Movement Audit Trail ({movements.length} Events)
@@ -659,20 +660,20 @@ export const InventoryPage = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-warm-100/70 border-b border-warm-200 text-stone-600 uppercase tracking-wider text-[11px] font-semibold">
+                <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 uppercase tracking-wider text-[11px] font-semibold">
                   <th className="py-2.5 px-3">Timestamp</th>
                   <th className="py-2.5 px-3">Ingredient</th>
                   <th className="py-2.5 px-3">Movement Type</th>
-                  <th className="py-2.5 px-3">Quantity Delta</th>
+                  <th className="py-2.5 px-3 text-right">Quantity Delta</th>
                   <th className="py-2.5 px-3">Reference / Order</th>
                   <th className="py-2.5 px-3">Notes</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-warm-100 text-stone-800">
+              <tbody className="divide-y divide-stone-100 text-stone-800">
                 {movements.map((m) => {
                   const isPositive = m.quantity > 0
                   return (
-                    <tr key={m.id} className="hover:bg-warm-50/50">
+                    <tr key={m.id} className="hover:bg-stone-50/50">
                       <td className="py-2.5 px-3 font-mono text-[11px] text-stone-500">
                         {m.timestamp || m.date}
                       </td>
@@ -684,7 +685,7 @@ export const InventoryPage = () => {
                           {m.movementType?.replace("_", " ")}
                         </span>
                       </td>
-                      <td className={`py-2.5 px-3 font-mono font-bold ${isPositive ? "text-emerald-700" : "text-rose-700"}`}>
+                      <td className={`py-2.5 px-3 font-mono font-semibold text-right ${isPositive ? "text-emerald-700" : "text-stone-900"}`}>
                         {isPositive ? `+${m.quantity}` : m.quantity} {m.unit}
                       </td>
                       <td className="py-2.5 px-3 font-mono text-stone-600">
@@ -701,29 +702,28 @@ export const InventoryPage = () => {
           </div>
         </div>
       )}
-
       {/* Inspect Ingredient Batches Modal */}
       {selectedIngredientForBatches && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-lg w-full border border-warm-200 shadow-2xl p-6 text-stone-800 animate-in fade-in">
-            <div className="flex items-center justify-between pb-3 border-b border-warm-200">
+          <div className="bg-white rounded-lg max-w-lg w-full border border-stone-200 shadow-xl p-6 text-stone-800 animate-in fade-in">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200">
               <div>
-                <h3 className="font-bold text-lg text-forest-900">
+                <h3 className="font-bold text-base text-stone-900">
                   Batches: {selectedIngredientForBatches.name}
                 </h3>
                 <p className="text-xs text-stone-500">
-                  Current Usable Stock: <strong>{selectedIngredientForBatches.usableStock || selectedIngredientForBatches.currentStock} {selectedIngredientForBatches.unit}</strong>
+                  Current Usable Stock: <strong className="font-mono text-stone-900">{selectedIngredientForBatches.usableStock || selectedIngredientForBatches.currentStock} {selectedIngredientForBatches.unit}</strong>
                 </p>
               </div>
               <button
                 onClick={() => setSelectedIngredientForBatches(null)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700"
+                className="p-1 rounded-md text-stone-400 hover:text-stone-700"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="mt-4 space-y-3 max-h-80 overflow-y-auto">
+            <div className="mt-4 space-y-2.5 max-h-80 overflow-y-auto">
               {batches.filter((b) => b.ingredientId === selectedIngredientForBatches.id).length === 0 ? (
                 <div className="py-8 text-center text-stone-400 text-xs">
                   No active batches recorded for this ingredient.
@@ -732,19 +732,19 @@ export const InventoryPage = () => {
                 batches
                   .filter((b) => b.ingredientId === selectedIngredientForBatches.id)
                   .map((b) => (
-                    <div key={b.id} className="p-3 rounded-xl border border-warm-200 bg-warm-50/50 text-xs flex items-center justify-between">
+                    <div key={b.id} className="p-3 rounded-lg border border-stone-200 bg-stone-50 text-xs flex items-center justify-between">
                       <div>
-                        <div className="font-bold text-stone-900 font-mono">{b.batchNumber}</div>
+                        <div className="font-semibold text-stone-900 font-mono">{b.batchNumber}</div>
                         <div className="text-[11px] text-stone-500">
                           Expires: <strong>{b.expiryDate}</strong> ({b.daysToExpiry} days remaining)
                         </div>
                         <div className="text-[10px] text-stone-400">Supplier: {b.supplierName}</div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-forest-900 text-sm font-mono">
+                        <div className="font-bold text-stone-900 text-sm font-mono">
                           {b.quantityRemaining} {b.unit}
                         </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-forest-100 text-forest-800 font-bold uppercase">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-700 font-medium uppercase">
                           {b.shelfLifeStatus}
                         </span>
                       </div>
@@ -753,22 +753,22 @@ export const InventoryPage = () => {
               )}
             </div>
 
-            <div className="mt-5 pt-3 border-t border-warm-200 flex justify-end space-x-2">
+            <div className="mt-5 pt-3 border-t border-stone-200 flex justify-end space-x-2">
+              <button
+                onClick={() => setSelectedIngredientForBatches(null)}
+                className="px-3.5 py-2 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 text-xs font-medium cursor-pointer"
+              >
+                Close
+              </button>
               <button
                 onClick={() => {
                   const target = selectedIngredientForBatches
                   setSelectedIngredientForBatches(null)
                   handleOpenReceiveModal(target)
                 }}
-                className="px-3 py-1.5 rounded-lg bg-forest-900 text-white text-xs font-semibold"
+                className="px-3.5 py-2 rounded-lg bg-forest-900 hover:bg-forest-800 text-white text-xs font-medium cursor-pointer"
               >
                 + Receive New Batch
-              </button>
-              <button
-                onClick={() => setSelectedIngredientForBatches(null)}
-                className="px-4 py-1.5 rounded-lg bg-stone-200 text-stone-800 text-xs font-semibold"
-              >
-                Close
               </button>
             </div>
           </div>
@@ -778,23 +778,23 @@ export const InventoryPage = () => {
       {/* Receive New Batch Modal */}
       {showReceiveModal && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-lg w-full border border-warm-200 shadow-2xl p-6 text-stone-800 animate-in fade-in">
-            <div className="flex items-center justify-between pb-3 border-b border-warm-200">
+          <div className="bg-white rounded-lg max-w-lg w-full border border-stone-200 shadow-xl p-6 text-stone-800 animate-in fade-in">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200">
               <div>
-                <h3 className="font-bold text-lg text-forest-900">Receive Batch (Stock-In)</h3>
+                <h3 className="font-bold text-base text-stone-900">Receive Batch (Stock-In)</h3>
                 <p className="text-xs text-stone-500">Record delivery receipt and initiate FEFO tracking</p>
               </div>
               <button
                 onClick={() => setShowReceiveModal(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700"
+                className="p-1 rounded-md text-stone-400 hover:text-stone-700"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleReceiveStock} className="mt-4 space-y-4 text-xs">
+            <form onSubmit={handleReceiveStock} className="mt-4 space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-stone-600 mb-1">
+                <label className="block font-medium text-stone-700 mb-1">
                   Select Ingredient <span className="text-rose-500">*</span>
                 </label>
                 <select
@@ -808,7 +808,7 @@ export const InventoryPage = () => {
                       setFormSupplier(matched.preferredSupplier || "Local Vendor")
                     }
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                  className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                 >
                   {items.map((it) => (
                     <option key={it.id} value={it.id}>
@@ -820,7 +820,7 @@ export const InventoryPage = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-stone-600 mb-1">
+                  <label className="block font-medium text-stone-700 mb-1">
                     Batch Number <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -828,12 +828,12 @@ export const InventoryPage = () => {
                     required
                     value={formBatchNumber}
                     onChange={(e) => setFormBatchNumber(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 font-mono text-stone-900"
+                    className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 font-mono text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                     placeholder="e.g. RICE-1114-01"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-stone-600 mb-1">
+                  <label className="block font-medium text-stone-700 mb-1">
                     Received Quantity <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -843,14 +843,14 @@ export const InventoryPage = () => {
                     required
                     value={formBatchQty}
                     onChange={(e) => setFormBatchQty(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                    className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-stone-600 mb-1">Unit Cost (₹)</label>
+                  <label className="block font-medium text-stone-700 mb-1">Unit Cost (₹)</label>
                   <input
                     type="number"
                     step="0.5"
@@ -858,11 +858,11 @@ export const InventoryPage = () => {
                     required
                     value={formBatchCost}
                     onChange={(e) => setFormBatchCost(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                    className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-stone-600 mb-1">
+                  <label className="block font-medium text-stone-700 mb-1">
                     Expiration Date <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -870,35 +870,35 @@ export const InventoryPage = () => {
                     required
                     value={formBatchExpiry}
                     onChange={(e) => setFormBatchExpiry(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                    className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-600 mb-1">Supplier / Vendor</label>
+                <label className="block font-medium text-stone-700 mb-1">Supplier / Vendor</label>
                 <input
                   type="text"
                   value={formSupplier}
                   onChange={(e) => setFormSupplier(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                  className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                   placeholder="e.g. Amul Dairy, APMC Mandi..."
                 />
               </div>
 
-              <div className="flex justify-end space-x-2 pt-2">
+              <div className="flex justify-end space-x-2 pt-2 border-t border-stone-200">
                 <button
                   type="button"
                   onClick={() => setShowReceiveModal(false)}
                   disabled={submitting}
-                  className="px-4 py-2 rounded-lg bg-stone-200 hover:bg-stone-300 text-stone-800 font-semibold"
+                  className="px-3.5 py-2 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 font-medium text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 rounded-lg bg-forest-900 hover:bg-forest-950 text-white font-semibold shadow flex items-center space-x-1"
+                  className="px-3.5 py-2 rounded-lg bg-forest-900 hover:bg-forest-800 text-white font-medium text-xs shadow-xs flex items-center space-x-1 cursor-pointer"
                 >
                   {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Confirm & Receive Batch</span>
@@ -912,29 +912,29 @@ export const InventoryPage = () => {
       {/* Record Consumption Modal */}
       {showConsumeModal && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full border border-warm-200 shadow-2xl p-6 text-stone-800 animate-in fade-in">
-            <div className="flex items-center justify-between pb-3 border-b border-warm-200">
+          <div className="bg-white rounded-lg max-w-md w-full border border-stone-200 shadow-xl p-6 text-stone-800 animate-in fade-in">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200">
               <div>
-                <h3 className="font-bold text-lg text-forest-900">Record Stock Consumption</h3>
+                <h3 className="font-bold text-base text-stone-900">Record Stock Consumption</h3>
                 <p className="text-xs text-stone-500">FEFO automatically deducts from oldest active batches</p>
               </div>
               <button
                 onClick={() => setShowConsumeModal(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700"
+                className="p-1 rounded-md text-stone-400 hover:text-stone-700"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleConsumeStock} className="mt-4 space-y-4 text-xs">
+            <form onSubmit={handleConsumeStock} className="mt-4 space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-stone-600 mb-1">
+                <label className="block font-medium text-stone-700 mb-1">
                   Ingredient <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={consumeIngId}
                   onChange={(e) => setConsumeIngId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                  className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                 >
                   {items.map((it) => (
                     <option key={it.id} value={it.id}>
@@ -946,7 +946,7 @@ export const InventoryPage = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-stone-600 mb-1">Quantity to Issue</label>
+                  <label className="block font-medium text-stone-700 mb-1">Quantity to Issue</label>
                   <input
                     type="number"
                     step="0.1"
@@ -954,16 +954,16 @@ export const InventoryPage = () => {
                     required
                     value={consumeQty}
                     onChange={(e) => setConsumeQty(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                    className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-stone-600 mb-1">Reason</label>
+                  <label className="block font-medium text-stone-700 mb-1">Reason</label>
                   <select
                     value={consumeReason}
                     onChange={(e) => setConsumeReason(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                    className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                   >
                     <option value="kitchen_prep">Kitchen Prep Shift</option>
                     <option value="catering">Catering Batch</option>
@@ -973,19 +973,19 @@ export const InventoryPage = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-2 pt-2">
+              <div className="flex justify-end space-x-2 pt-2 border-t border-stone-200">
                 <button
                   type="button"
                   onClick={() => setShowConsumeModal(false)}
                   disabled={submitting}
-                  className="px-4 py-2 rounded-lg bg-stone-200 text-stone-800 font-semibold"
+                  className="px-3.5 py-2 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 font-medium text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 rounded-lg bg-forest-900 hover:bg-forest-950 text-white font-semibold shadow flex items-center space-x-1"
+                  className="px-3.5 py-2 rounded-lg bg-forest-900 hover:bg-forest-800 text-white font-medium text-xs shadow-xs flex items-center space-x-1 cursor-pointer"
                 >
                   {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Issue & Deduct FEFO</span>
@@ -999,27 +999,27 @@ export const InventoryPage = () => {
       {/* Stock Adjustment Modal */}
       {showAdjustModal && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full border border-warm-200 shadow-2xl p-6 text-stone-800 animate-in fade-in">
-            <div className="flex items-center justify-between pb-3 border-b border-warm-200">
+          <div className="bg-white rounded-lg max-w-md w-full border border-stone-200 shadow-xl p-6 text-stone-800 animate-in fade-in">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-200">
               <div>
-                <h3 className="font-bold text-lg text-forest-900">Physical Stock Count Audit</h3>
+                <h3 className="font-bold text-base text-stone-900">Physical Stock Count Audit</h3>
                 <p className="text-xs text-stone-500">Correct inventory ledger based on actual count</p>
               </div>
               <button
                 onClick={() => setShowAdjustModal(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700"
+                className="p-1 rounded-md text-stone-400 hover:text-stone-700"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleAdjustStock} className="mt-4 space-y-4 text-xs">
+            <form onSubmit={handleAdjustStock} className="mt-4 space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-stone-600 mb-1">Ingredient</label>
+                <label className="block font-medium text-stone-700 mb-1">Ingredient</label>
                 <select
                   value={adjustIngId}
                   onChange={(e) => setAdjustIngId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                  className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                 >
                   {items.map((it) => (
                     <option key={it.id} value={it.id}>
@@ -1030,7 +1030,7 @@ export const InventoryPage = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-600 mb-1">
+                <label className="block font-medium text-stone-700 mb-1">
                   Verified Physical Count
                 </label>
                 <input
@@ -1040,33 +1040,33 @@ export const InventoryPage = () => {
                   required
                   value={adjustNewStock}
                   onChange={(e) => setAdjustNewStock(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                  className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-stone-600 mb-1">Reason / Notes</label>
+                <label className="block font-medium text-stone-700 mb-1">Reason / Notes</label>
                 <input
                   type="text"
                   value={adjustNotes}
                   onChange={(e) => setAdjustNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-warm-50 border border-warm-200 text-stone-900"
+                  className="w-full px-3 py-2 rounded-lg bg-stone-50 border border-stone-200 text-stone-900 focus:bg-white focus:outline-none focus:border-stone-400"
                 />
               </div>
 
-              <div className="flex justify-end space-x-2 pt-2">
+              <div className="flex justify-end space-x-2 pt-2 border-t border-stone-200">
                 <button
                   type="button"
                   onClick={() => setShowAdjustModal(false)}
                   disabled={submitting}
-                  className="px-4 py-2 rounded-lg bg-stone-200 text-stone-800 font-semibold"
+                  className="px-3.5 py-2 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 font-medium text-xs cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 rounded-lg bg-forest-900 hover:bg-forest-950 text-white font-semibold shadow flex items-center space-x-1"
+                  className="px-3.5 py-2 rounded-lg bg-forest-900 hover:bg-forest-800 text-white font-medium text-xs shadow-xs flex items-center space-x-1 cursor-pointer"
                 >
                   {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Save Audit Adjustment</span>

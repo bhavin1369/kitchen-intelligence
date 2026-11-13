@@ -244,17 +244,17 @@ export const RecipePage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-warm-200">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-stone-200">
         <div>
-          <div className="flex items-center space-x-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-forest-900 tracking-tight">
+          <div className="flex items-center space-x-2.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
               Recipe & Bill of Materials (BOM)
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-forest-100 text-forest-900 border border-forest-200 uppercase tracking-wider">
+            <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-stone-100 text-stone-700 border border-stone-200">
               Live SQLite BOM
             </span>
           </div>
-          <p className="text-sm text-stone-500 mt-1">
+          <p className="text-xs sm:text-sm text-stone-500 mt-0.5">
             Engineered recipe formulas, exact portioning, shrinkage loss, and bulk prep scaling for canteen dishes.
           </p>
         </div>
@@ -263,17 +263,17 @@ export const RecipePage = () => {
           <button
             onClick={() => fetchRecipeForDish(selectedDishId)}
             disabled={loadingRecipe}
-            className="p-2.5 rounded-lg bg-warm-100 hover:bg-warm-200 text-stone-700 text-xs font-semibold transition flex items-center space-x-1 cursor-pointer"
+            className="p-2 rounded-lg bg-white hover:bg-stone-50 border border-stone-200 text-stone-700 text-xs font-medium transition flex items-center space-x-1 cursor-pointer"
             title="Refresh BOM from Database"
           >
-            <RefreshCw className={`w-4 h-4 ${loadingRecipe ? "animate-spin text-forest-800" : ""}`} />
-            <span className="hidden sm:inline">Refresh BOM</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingRecipe ? "animate-spin text-forest-800" : ""}`} />
+            <span className="hidden sm:inline">Refresh</span>
           </button>
           <button
             onClick={handleOpenAddModal}
-            className="px-4 py-2.5 rounded-lg bg-forest-900 hover:bg-forest-950 text-white text-xs font-semibold shadow-md transition flex items-center space-x-2 cursor-pointer"
+            className="px-3.5 py-2 rounded-lg bg-forest-900 hover:bg-forest-800 text-white text-xs font-medium shadow-xs transition flex items-center space-x-1.5 cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-gold-400" />
+            <Plus className="w-3.5 h-3.5 text-emerald-300" />
             <span>Add Ingredient to Recipe</span>
           </button>
         </div>
@@ -281,7 +281,7 @@ export const RecipePage = () => {
 
       {/* Notifications */}
       {successMsg && (
-        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between animate-in fade-in">
+        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center justify-between animate-in fade-in">
           <div className="flex items-center space-x-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span className="font-medium">{successMsg}</span>
@@ -293,7 +293,7 @@ export const RecipePage = () => {
       )}
 
       {error && (
-        <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-center justify-between animate-in fade-in">
+        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-center justify-between animate-in fade-in">
           <div className="flex items-center space-x-2">
             <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             <span className="font-medium">{error}</span>
@@ -305,11 +305,11 @@ export const RecipePage = () => {
       )}
 
       {/* Main 2-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         {/* Left Column: Dish Selector (4 cols) */}
-        <div className="lg:col-span-4 p-4 rounded-2xl bg-white border border-warm-200 shadow-card space-y-3">
+        <div className="lg:col-span-4 p-4 rounded-lg bg-white border border-stone-200 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-stone-500">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-stone-500">
               Select Canteen Dish ({dishes.length})
             </h2>
             <span className="text-[11px] text-stone-400 font-medium">BOM Explorer</span>
@@ -367,81 +367,81 @@ export const RecipePage = () => {
         </div>
 
         {/* Right Column: Recipe Details & BOM Inspector (8 cols) */}
-        <div className="lg:col-span-8 space-y-5">
+        <div className="lg:col-span-8 space-y-4">
           {/* Active Dish Overview Card */}
-          <div className="p-6 rounded-2xl bg-white border border-warm-200 shadow-card">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-warm-100">
+          <div className="p-5 rounded-lg bg-white border border-stone-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3.5 border-b border-stone-100">
               <div>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gold-50 text-gold-800 border border-gold-200">
+                <span className="px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-stone-100 text-stone-700 border border-stone-200">
                   {activeDish.category || "Canteen"}
                 </span>
-                <h2 className="text-xl font-bold text-stone-900 mt-1">{activeDish.name}</h2>
+                <h2 className="text-lg font-bold text-stone-900 mt-1">{activeDish.name}</h2>
                 <p className="text-xs text-stone-500 mt-0.5">
                   {activeDish.description || "Standard culinary formula with portion-based ingredient scaling."}
                 </p>
               </div>
 
-              <div className="text-right bg-warm-50 p-3 rounded-xl border border-warm-200 shrink-0">
-                <div className="text-[10px] uppercase font-bold text-stone-400">Target Selling Price</div>
-                <div className="text-2xl font-black text-forest-900">₹{activeDish.price}</div>
+              <div className="text-right bg-stone-50 p-2.5 rounded-md border border-stone-200 shrink-0">
+                <div className="text-[10px] uppercase font-semibold text-stone-500">Target Selling Price</div>
+                <div className="text-xl font-bold text-stone-900 font-sans">₹{activeDish.price}</div>
               </div>
             </div>
 
             {/* Financial & Prep Metrics Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 text-xs">
-              <div className="p-3 rounded-xl bg-warm-50 border border-warm-100">
-                <span className="text-[10px] text-stone-500 font-semibold uppercase">Portion Food Cost</span>
-                <div className="text-base font-bold text-stone-900 mt-1">₹{portionFoodCost.toFixed(2)}</div>
-                <span className="text-[10px] text-stone-500">From verified BOM</span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3.5 text-xs">
+              <div className="p-3 rounded-md bg-stone-50 border border-stone-200">
+                <span className="text-[10px] text-stone-500 font-medium uppercase">Portion Food Cost</span>
+                <div className="text-base font-semibold text-stone-900 mt-1">₹{portionFoodCost.toFixed(2)}</div>
+                <span className="text-[10px] text-stone-400">From verified BOM</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-forest-50 border border-forest-100">
-                <span className="text-[10px] text-forest-800 font-semibold uppercase">Gross Margin</span>
-                <div className="text-base font-bold text-forest-900 mt-1">{marginPercent}%</div>
-                <span className="text-[10px] text-forest-700">Healthy profit band</span>
+              <div className="p-3 rounded-md bg-stone-50 border border-stone-200">
+                <span className="text-[10px] text-stone-500 font-medium uppercase">Gross Margin</span>
+                <div className="text-base font-semibold text-emerald-700 mt-1">{marginPercent}%</div>
+                <span className="text-[10px] text-stone-400">Target profit margin</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-warm-50 border border-warm-100">
-                <span className="text-[10px] text-stone-500 font-semibold uppercase">Prep Time</span>
-                <div className="text-base font-bold text-stone-900 mt-1">
+              <div className="p-3 rounded-md bg-stone-50 border border-stone-200">
+                <span className="text-[10px] text-stone-500 font-medium uppercase">Prep Time</span>
+                <div className="text-base font-semibold text-stone-900 mt-1">
                   {activeDish.prepTimeMinutes || 15} mins
                 </div>
-                <span className="text-[10px] text-stone-500">Station cook time</span>
+                <span className="text-[10px] text-stone-400">Station cook time</span>
               </div>
 
-              <div className="p-3 rounded-xl bg-warm-50 border border-warm-100">
-                <span className="text-[10px] text-stone-500 font-semibold uppercase">Avg Prep Loss</span>
-                <div className="text-base font-bold text-amber-700 mt-1">
+              <div className="p-3 rounded-md bg-stone-50 border border-stone-200">
+                <span className="text-[10px] text-stone-500 font-medium uppercase">Avg Prep Loss</span>
+                <div className="text-base font-semibold text-stone-900 mt-1">
                   {avgPrepLoss}%
                 </div>
-                <span className="text-[10px] text-stone-500">Trimming & shrinkage</span>
+                <span className="text-[10px] text-stone-400">Shrinkage & trimming</span>
               </div>
             </div>
           </div>
 
           {/* Interactive Batch Prep Simulation Scaler */}
-          <div className="p-5 rounded-2xl bg-forest-950 text-stone-200 border border-forest-900 shadow-card">
+          <div className="p-4 rounded-lg bg-stone-50 border border-stone-200 text-stone-800">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <div className="flex items-center space-x-2 text-gold-400 text-xs font-bold uppercase tracking-wider">
-                  <Calculator className="w-4 h-4" />
-                  <span>Interactive Batch Prep Scaler</span>
+                <div className="flex items-center space-x-1.5 text-xs font-semibold text-stone-700">
+                  <Calculator className="w-3.5 h-3.5 text-stone-500" />
+                  <span>Batch Prep Scaler</span>
                 </div>
-                <p className="text-xs text-stone-300 mt-0.5">
-                  Simulate raw ingredient requirements for lunch rush, canteen batch prep, or catering
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Simulate raw ingredient requirements for lunch rush, batch prep, or catering
                 </p>
               </div>
 
               {/* Portion buttons */}
-              <div className="flex items-center space-x-1.5 bg-forest-900 p-1 rounded-xl border border-forest-800">
+              <div className="inline-flex items-center p-0.5 rounded-md bg-white border border-stone-200 text-xs">
                 {[10, 25, 50, 100, 200].map((num) => (
                   <button
                     key={num}
                     onClick={() => setBatchScale(num)}
-                    className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition ${
+                    className={`px-2.5 py-1 text-xs font-medium rounded transition cursor-pointer ${
                       batchScale === num
-                        ? "bg-gold-500 text-stone-950 shadow-sm"
-                        : "text-stone-300 hover:text-white"
+                        ? "bg-forest-900 text-white font-semibold shadow-xs"
+                        : "text-stone-600 hover:text-stone-900"
                     }`}
                   >
                     {num} pk
@@ -450,17 +450,17 @@ export const RecipePage = () => {
               </div>
             </div>
 
-            <div className="mt-3 text-xs text-stone-400">
-              Scaling BOM calculation for: <strong className="text-white">{batchScale} portions</strong> of{" "}
-              <strong className="text-gold-300">{activeDish.name}</strong>
+            <div className="mt-2.5 text-xs text-stone-500">
+              Scaling BOM calculation for: <strong className="font-semibold text-stone-900">{batchScale} portions</strong> of{" "}
+              <strong className="font-semibold text-stone-900">{activeDish.name}</strong>
             </div>
           </div>
 
           {/* Ingredients Table */}
-          <div className="rounded-2xl bg-white border border-warm-200 shadow-card overflow-hidden">
-            <div className="p-4 border-b border-warm-100 flex items-center justify-between">
+          <div className="rounded-lg bg-white border border-stone-200 overflow-hidden">
+            <div className="p-4 border-b border-stone-200 flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-stone-900 text-sm">
+                <h3 className="font-semibold text-stone-900 text-xs uppercase tracking-wider">
                   Bill of Materials Breakdown ({dishIngredients.length} Ingredients)
                 </h3>
                 <p className="text-xs text-stone-500">
@@ -575,7 +575,7 @@ export const RecipePage = () => {
       {/* Add / Edit Recipe Ingredient Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-md w-full border border-warm-200 shadow-2xl p-6 text-stone-800 animate-in fade-in">
+          <div className="bg-white rounded-lg max-w-md w-full border border-stone-200 shadow-xl p-5 text-stone-800 animate-in fade-in">
             <div className="flex items-center justify-between pb-3 border-b border-warm-200">
               <div>
                 <h3 className="font-bold text-lg text-forest-900">
@@ -693,7 +693,7 @@ export const RecipePage = () => {
       {/* Delete Confirmation Modal */}
       {recipeToDelete && (
         <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-sm w-full border border-warm-200 shadow-2xl p-6 text-stone-800 animate-in fade-in">
+          <div className="bg-white rounded-lg max-w-sm w-full border border-stone-200 shadow-xl p-5 text-stone-800 animate-in fade-in">
             <h3 className="font-bold text-base text-rose-900">Remove Recipe Ingredient</h3>
             <p className="text-xs text-stone-600 mt-2">
               Are you sure you want to remove <strong className="text-stone-900">"{recipeToDelete.ingredientName}"</strong> from the BOM formula of <strong className="text-stone-900">{activeDish.name}</strong>?
